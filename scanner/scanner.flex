@@ -29,8 +29,8 @@ comment --.*
 
 {id} { printf("id %s\n", yytext); }
 
-{hexnum} { printf("num %X\n", strtol(yytext + sizeof(char),NULL,16) ); }
-{decnum} { printf("num %X\n", strtol(yytext               ,NULL,10) ); }
+{hexnum} { printf("num %x\n", strtol(yytext + sizeof(char),NULL,16) ); }
+{decnum} { printf("num %x\n", strtol(yytext               ,NULL,10) ); }
 
 . { printf("Lexical error.\n"); exit(1); }
 
