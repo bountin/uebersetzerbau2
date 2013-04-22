@@ -1,2 +1,4 @@
 *.c
+*.h
 parser
+parser.output

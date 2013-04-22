@@ -1,36 +1,55 @@
 /***** Definition section *****/
 
+%{
+	#include "parser.tab.h"
+%}"
+
 id [a-zA-Z][0-9a-zA-Z]*
 hexnum \$[0-9a-fA-F]+
 decnum [0-9]+
 whitespace [ \t\n]
-special [;(),:<#\[\]\-+*]|:=
 comment --.*
 
 %%	/***** Rules section *****/
 
-"end"	|
-"array" |
-"of" 	|
-"int"	|
-"return" |
-"if"	|
-"then"	|
-"else"	|
-"while"	|
-"do"	|
-"var"	|
-"not"	|
-"or"	|
-{special} { printf("%s\n", yytext); }
+"var"		return T_VAR;
+"array" 	return T_ARRAY;
+"of" 		return T_OF;
+"int"		return T_INT;
+"return" 	return T_RETURN;
+
+"if"		return T_IF;
+"then"		return T_THEN;
+"else"		return T_ELSE;
+"while"		return T_WHILE;
+"do"		return T_DO;
+"end"		return T_END;
+
+"not"		return T_NOT;
+"or"		return T_OR;
+
+":="		return T_ASSIGN;
+
+";"	return ';';
+"("	return '(';
+")"	return ')';
+","	return ',';
+":"	return ':';
+"<"	return '<';
+"#"	return '#';
+"["	return '[';
+"]"	return ']';
+"-"	return '-';
+"+"	return '+';
+"*"	return '*';
+
+{id} { /** yylval = strdup(yytext); **/ return T_IDENTIFIER; }
+
+{hexnum} { yylval = strtol(yytext + sizeof(char),NULL,16); return T_NUM; }
+{decnum} { yylval = strtol(yytext               ,NULL,10); return T_NUM; }
 
 {whitespace} |
 {comment} { /** Do nothing **/ }
-
-{id} { printf("id %s\n", yytext); }
-
-{hexnum} { printf("num %x\n", strtol(yytext + sizeof(char),NULL,16) ); }
-{decnum} { printf("num %x\n", strtol(yytext               ,NULL,10) ); }
 
 . { printf("Lexical error.\n"); exit(1); }
 
