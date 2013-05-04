@@ -88,15 +88,15 @@ expression:
 	;
 expression_sub:
 	  term '-' expression_sub
-	| term
+	| term '-' term
 	;
 expression_add:
 	  term '+' expression_add
-	| term
+	| term '+' term
 	;
 expression_mult:
 	  term '*' expression_mult
-	| term
+	| term '*' term
 	;
 
 term:
