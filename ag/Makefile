@@ -13,6 +13,7 @@ lex.yy.c: oxout.l
 clean:
 	rm -f ag *tab.? *.output lex.yy.c oxout.?
 
+check: ag
+	/usr/ftp/pub/ubvl/test13/ag/test | sed '1,/Test file:/!{ /\(Correct\)\|\(.Error\)/,/Test file:/!d; }' | sed '/^$$/d'
 test: ag
-	/usr/ftp/pub/ubvl/test13/ag/test
-
+	/usr/ftp/pub/ubvl/test13/ag/test 
