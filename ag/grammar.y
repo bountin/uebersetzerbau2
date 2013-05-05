@@ -1,3 +1,4 @@
+
 %{
 
 #include <stdio.h>
@@ -5,7 +6,8 @@
 #include <stdlib.h>
 
 #include "table.h"
-//#include "checks.h"
+#include "checks.h"
+#include "type.h"
 
 int yyerror (const char *msg)
 {
@@ -30,7 +32,7 @@ main () { yyparse(); }
 @autoinh params vars
 
 @attributes {int val;}		T_NUM
-@attributes {char *name;} 	T_IDENTIFIER vardef
+@attributes {char *name;} 	T_IDENTIFIER
 
 @attributes {struct symbol *params, *vars;}				stats
 @attributes {struct symbol *params, *vars, *vars_out;}			stat
@@ -38,8 +40,11 @@ main () { yyparse(); }
 
 @attributes {struct symbol *params, *vars; } 				expression expression_add expression_mult expression_sub l_expression term term_boolean boolean call_parameters
 
-/** Test used variables and labels **/
-//@traversal @preorder t
+@attributes {int depth; }						type
+@attributes {struct type *type; }					vardef
+
+/** Checking symbol tables **/
+@traversal @preorder t
 
 %%
 
@@ -54,6 +59,8 @@ function:
 			@i @stats.params@ = @parameters.params_out@;
 
 			@i @stats.vars@ = NULL;
+
+			@t check_uniqueness (@parameters.params_out@);
 		@}
 	;
 
@@ -69,20 +76,24 @@ parameters:
 parameters_with_vardefs:
 	  vardef ',' parameters_with_vardefs
 		@{	@i @parameters_with_vardefs.1.params_in@ = @parameters_with_vardefs.0.params_in@;
-			@i @parameters_with_vardefs.0.params_out@ = tbl_add_symbol (@parameters_with_vardefs.1.params_out@, @vardef.name@);
+			@i @parameters_with_vardefs.0.params_out@ = tbl_add_symbol (@parameters_with_vardefs.1.params_out@, @vardef.type@);
 		@}
 	| vardef
-		@{	@i @parameters_with_vardefs.params_out@ = tbl_add_symbol (@parameters_with_vardefs.params_in@, @vardef.name@);
+		@{	@i @parameters_with_vardefs.params_out@ = tbl_add_symbol (@parameters_with_vardefs.params_in@, @vardef.type@);
 		@}
 	;
 vardef:
 	  T_IDENTIFIER ':' type
-		@{	@i @vardef.name@ = @T_IDENTIFIER.name@;
+		@{	@i @vardef.type@ = create_type (@T_IDENTIFIER.name@, @type.depth@);
 		@}
 	;
 type:
 	  T_ARRAY T_OF type
+		@{ 	@i @type.0.depth@ = @type.1.depth@ + 1;
+		@}
 	| T_INT
+		@{ 	@i @type.0.depth@ = 0;
+		@}
 	;
 
 stats:
@@ -105,7 +116,7 @@ stat:
 		@{	@i @stat.vars_out@ = @stat.vars@;
 		@}
 	| T_VAR vardef T_ASSIGN expression
-		@{	@i @stat.vars_out@ = tbl_add_symbol (@stat.vars@, @vardef.name@);
+		@{	@i @stat.vars_out@ = tbl_add_symbol (@stat.vars@, @vardef.type@);
 		@}
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
@@ -128,6 +139,8 @@ term_boolean:
 
 l_expression:
 	  T_IDENTIFIER
+		@{	@t check_variable (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
+		@}
 	| term '[' expression ']'
 	;
 
@@ -155,6 +168,8 @@ term:
 	| T_NUM
 	| term '[' expression ']'
 	| T_IDENTIFIER
+		@{	@t check_variable (@T_IDENTIFIER.name@, @term.params@, @term.vars@);
+		@}
 	| T_IDENTIFIER '(' ')' ':' type
 	| T_IDENTIFIER '(' call_parameters ')' ':' type
 	;

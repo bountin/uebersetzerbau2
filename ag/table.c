@@ -4,32 +4,27 @@
 
 #include "table.h"
 
-struct symbol* tbl_add_symbol (struct symbol *table, char *name) {
-	struct symbol *s = (struct symbol *) malloc (sizeof(struct symbol));
+struct symbol* tbl_add_symbol (struct symbol *table, struct type *type) {
+	struct symbol *s = malloc (sizeof(struct symbol));
 
-	if (table_has_symbol (table, name)) {
-		printf("AG ERROR: Tried to declare a symbol twice.\n");
-		exit(3);
-	}
-
-	s->name = name;
+	s->type = type;
 	s->next = table;
 
 	return s;
 }
 
-int table_has_symbol (struct symbol *table, char *name) {
+int table_has_symbol (struct symbol *table, const char *name) {
 	struct symbol *s = table;
 
 	if (s == (struct symbol *)NULL) /* empty tbl haz no symbol */
 		return 0;
 
-	if (strcmp (s->name, name) == 0)
+	if (strcmp (s->type->name, name) == 0)
 		return 1;
 
 	while (s->next != (struct symbol *)NULL) {
 		s = s->next;
-		if (strcmp (s->name, name) == 0)
+		if (strcmp (s->type->name, name) == 0)
 			return 1;
 	}
 
@@ -43,11 +38,11 @@ struct symbol* tbl_merge (struct symbol *A, struct symbol *B) {
 	if (B == (struct symbol *)NULL) /* B haz no elementz */ 
 		return A;
 
-	R = tbl_add_symbol (R, B->name);
+	R = tbl_add_symbol (R, B->type);
 
 	while (s->next != (struct symbol *)NULL) {
 		s = s->next;
-		R = tbl_add_symbol (R, s->name);
+		R = tbl_add_symbol (R, s->type);
 	}
 
 	return R;
@@ -64,8 +59,8 @@ void tbl_print (struct symbol *table) {
 	}
 
 	while (s->next != (struct symbol *)NULL) {
-		printf ("%s\n", s->name);
+		printf ("%s (D:%d)\n", s->type->name, s->type->depth);
 		s = s->next;
 	}
-	printf ("%s\n\n", s->name);
+	printf ("%s (D:%d)\n\n", s->type->name, s->type->depth);
 }
