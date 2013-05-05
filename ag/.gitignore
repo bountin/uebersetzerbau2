@@ -2,3 +2,4 @@ ag
 lex.yy.c
 *tab.?
 *.output
+oxout.?
