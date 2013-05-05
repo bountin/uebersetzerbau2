@@ -85,6 +85,7 @@ expression:
 	  expression_sub
 	| expression_add
 	| expression_mult
+	| term
 	;
 expression_sub:
 	  term '-' expression_sub
