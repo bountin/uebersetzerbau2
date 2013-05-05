@@ -1,7 +1,7 @@
 /***** Definition section *****/
 
 %{
-	#include "grammar.tab.h"
+	#include "oxout.tab.h"
 %}"
 
 id [a-zA-Z][0-9a-zA-Z]*
@@ -43,10 +43,10 @@ comment --.*
 "+"	return '+';
 "*"	return '*';
 
-{id} { /** yylval = strdup(yytext); **/ return T_IDENTIFIER; }
+{id}		return T_IDENTIFIER; @{ @T_IDENTIFIER.name@ = strdup(yytext); @}
 
-{hexnum} { yylval = strtol(yytext + sizeof(char),NULL,16); return T_NUM; }
-{decnum} { yylval = strtol(yytext               ,NULL,10); return T_NUM; }
+{hexnum} 	return T_NUM;  @{ @T_NUM.val@ = strtol(yytext + sizeof(char),NULL,16); @}
+{decnum} 	return T_NUM;  @{ @T_NUM.val@ = strtol(yytext               ,NULL,10); @}
 
 {whitespace} |
 {comment} { /** Do nothing **/ }
