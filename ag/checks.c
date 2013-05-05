@@ -23,3 +23,19 @@ void check_uniqueness (const struct symbol *tbl)
 		tbl = tbl->next;
 	}
 }
+
+void check_depth (const struct type *type, const int depth)
+{
+	if (type->depth != depth) {
+		printf ("AG error: Unexpected depth of %d (Exp:%d) - %s\n", type->depth, depth, type->name);
+		exit (3);
+	}
+}
+
+void check_depth_not_zero (const struct type *type)
+{
+	if (type->depth == 0) {
+		printf ("AG error: Expected depth of 0, got %d (%s)\n", type->depth, type->name);
+		exit (3);
+	}
+}

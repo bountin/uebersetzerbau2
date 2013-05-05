@@ -38,7 +38,8 @@ main () { yyparse(); }
 @attributes {struct symbol *params, *vars, *vars_out;}			stat
 @attributes {struct symbol *params_out, *params_in;} 			parameters parameters_with_vardefs
 
-@attributes {struct symbol *params, *vars; } 				expression expression_add expression_mult expression_sub l_expression term term_boolean boolean call_parameters
+@attributes {struct symbol *params, *vars; } 				expression_add expression_mult expression_sub term_boolean boolean call_parameters
+@attributes {struct symbol *params, *vars; struct type *type; }		term expression l_expression
 
 @attributes {int depth; }						type
 @attributes {struct type *type; }					vardef
@@ -117,9 +118,13 @@ stat:
 		@}
 	| T_VAR vardef T_ASSIGN expression
 		@{	@i @stat.vars_out@ = tbl_add_symbol (@stat.vars@, @vardef.type@);
+
+			@t check_depth (@expression.type@, @vardef.type@->depth);
 		@}
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
+
+			@t check_depth (@expression.type@, @l_expression.type@->depth);
 		@}
 	| term
 		@{	@i @stat.vars_out@ = @stat.vars@;
@@ -134,44 +139,88 @@ term_boolean:
 	  '(' boolean ')'
 	| T_NOT term_boolean
 	| expression '<' expression
+		@{	@t check_depth (@expression.0.type@, 0);
+			@t check_depth (@expression.1.type@, 0);
+		@}
 	| expression '#' expression
+		@{	@t check_depth (@expression.0.type@, 0);
+			@t check_depth (@expression.1.type@, 0);
+		@}
 	;
 
 l_expression:
 	  T_IDENTIFIER
-		@{	@t check_variable (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
+		@{	@i @l_expression.type@ = create_type ("", get_type (@l_expression.vars@, @l_expression.params@, @T_IDENTIFIER.name@)->depth);
+
+			@t check_variable (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
 		@}
 	| term '[' expression ']'
+		@{	@i @l_expression.type@ = create_type ("", @term.type@->depth - 1);
+
+			@t check_depth_not_zero (@term.type@);
+		@}
 	;
 
 expression:
 	  expression_sub
+		@{	@i @expression.type@ = create_type ("", 0);
+		@}
 	| expression_add
+		@{	@i @expression.type@ = create_type ("", 0);
+		@}
 	| expression_mult
+		@{	@i @expression.type@ = create_type ("", 0);
+		@}
 	| term
+		@{	@i @expression.type@ = @term.type@;
+		@}
 	;
 expression_sub:
 	  term '-' expression_sub
+		@{	@t check_depth (@term.type@, 0);
+		@}
 	| term '-' term
+		@{	@t check_depth (@term.0.type@, 0); check_depth (@term.1.type@, 0);
+		@}
 	;
 expression_add:
 	  term '+' expression_add
+		@{	@t check_depth (@term.type@, 0);
+		@}
 	| term '+' term
+		@{	@t check_depth (@term.0.type@, 0); check_depth (@term.1.type@, 0);
+		@}
 	;
 expression_mult:
 	  term '*' expression_mult
+		@{	@t check_depth (@term.type@, 0);
+		@}
 	| term '*' term
+		@{	@t check_depth (@term.0.type@, 0); check_depth (@term.1.type@, 0);
+		@}
 	;
 
 term:
 	  '(' expression ')'
+		@{	@i @term.type@ = @expression.type@;
+		@}
 	| T_NUM
+		@{	@i @term.type@ = create_type ("", 0);
+		@}
 	| term '[' expression ']'
+		@{	@i @term.0.type@ = create_type ("", @term.1.type@->depth - 1);
+		@}
 	| T_IDENTIFIER
-		@{	@t check_variable (@T_IDENTIFIER.name@, @term.params@, @term.vars@);
+		@{	@i @term.type@ = create_type ("", get_type (@term.vars@, @term.params@, @T_IDENTIFIER.name@)->depth);
+
+			@t check_variable (@T_IDENTIFIER.name@, @term.params@, @term.vars@);
 		@}
 	| T_IDENTIFIER '(' ')' ':' type
+		@{	@i @term.type@ = create_type ("", @type.depth@);
+		@}
 	| T_IDENTIFIER '(' call_parameters ')' ':' type
+		@{	@i @term.type@ = create_type ("", @type.depth@);
+		@}
 	;
 call_parameters:
 	  expression ',' call_parameters
