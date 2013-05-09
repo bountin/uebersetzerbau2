@@ -11,6 +11,11 @@ struct type* create_type (const char *name, const int depth)
 	type->name = name;
 	type->depth = depth;
 
+	if (depth < 0) {
+		printf ("AG: non-positive depth is not allowed\n");
+		exit (3);
+	}
+
 	return type;
 }
 

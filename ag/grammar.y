@@ -158,6 +158,7 @@ l_expression:
 		@{	@i @l_expression.type@ = create_type ("", @term.type@->depth - 1);
 
 			@t check_depth_not_zero (@term.type@);
+			@t check_depth (@expression.type@, 0);
 		@}
 	;
 
