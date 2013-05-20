@@ -1,0 +1,36 @@
+%{
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+#define CODE
+
+#include "asm.h"
+#include "code_gen.h"
+
+%}
+%start stat
+%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8
+%%
+
+stat:	return
+return: TT_RETURN (expr)		# 2 #	asm_mov (LC_REG (bnode), "rax"); asm_ret ();
+
+expr:	unary
+expr:	TT_MULT (term,term)		# 1 #	bnode->reg = asm_mult (LC_REG (bnode), RC_REG (bnode));
+expr:	TT_ADD (term,term)		# 1 #	bnode->reg = asm_add (LC_REG (bnode), RC_REG (bnode));
+expr:	TT_SUB (term,term)		# 1 #	bnode->reg = asm_sub (LC_REG (bnode), RC_REG (bnode));
+
+unary:	term
+
+term:	expr				# 1 #
+term:	iterm				# 1 #	bnode->reg = asm_imov (bnode->val);
+term:	TT_VARIABLE
+term:	TT_ARR_READ (term, expr)	# 1 #	bnode->reg = asm_array_read (LC_REG (bnode), RC_REG (bnode));
+
+iterm:	TT_NUM
+iterm:	TT_ADD (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) + RC_VAL (bnode);
+iterm:	TT_SUB (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) - RC_VAL (bnode);
+iterm:	TT_MULT (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) * RC_VAL (bnode);

@@ -31,24 +31,7 @@ int table_has_symbol (struct symbol *table, const char *name) {
 	return 0;
 }
 
-struct symbol* tbl_merge (struct symbol *A, struct symbol *B) {
-	struct symbol *s = B;
-	struct symbol *R = A;
-
-	if (B == (struct symbol *)NULL) /* B haz no elementz */ 
-		return A;
-
-	R = tbl_add_symbol (R, B->type);
-
-	while (s->next != (struct symbol *)NULL) {
-		s = s->next;
-		R = tbl_add_symbol (R, s->type);
-	}
-
-	return R;
-}
-
-void tbl_print (struct symbol *table) {
+void table_print (struct symbol *table) {
 	struct symbol *s = table;
 
 	printf("Tbl dump:\n");
@@ -63,4 +46,20 @@ void tbl_print (struct symbol *table) {
 		s = s->next;
 	}
 	printf ("%s (D:%d)\n\n", s->type->name, s->type->depth);
+}
+
+char *tbl_find_reg (char *name, struct symbol *s)
+{
+	while (s != NULL) {
+		if (strcmp (s->type->name, name) == 0) {
+			#ifdef MY_DEBUG
+			printf ("# -- Found %s: register %s", name, s->reg);
+			#endif
+			return strdup (s->reg);
+		}
+		s = s->next;
+	}
+
+	printf("THIS SHOULD NEVER HAPPEN (tbl_find_reg(%s))", name);
+	exit (4);
 }
