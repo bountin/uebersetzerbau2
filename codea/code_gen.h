@@ -45,10 +45,14 @@ struct code {
 #define PANIC printf
 #define NODEPTR_TYPE struct code*
 
+#define LC(p) (LEFT_CHILD(p))
+#define RC(p) (RIGHT_CHILD(p))
+
 #define    REG(p) ((p)->reg)
 #define LC_REG(p) (LEFT_CHILD(p)->reg)
 #define RC_REG(p) (RIGHT_CHILD(p)->reg)
 
+#define    VAL(p) ((p)->val)
 #define LC_VAL(p) (LEFT_CHILD(p)->val)
 #define RC_VAL(p) (RIGHT_CHILD(p)->val)
 
