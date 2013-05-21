@@ -9,6 +9,7 @@
 #include "checks.h"
 #include "type.h"
 #include "code_gen.h"
+#include "optimization.h"
 
 int yyerror (const char *msg)
 {
@@ -51,6 +52,7 @@ main () { yyparse(); }
 /** Checking symbol tables **/
 @traversal @preorder t
 
+@traversal @postorder @righttoleft optim
 @traversal @preorder asm
 
 %%
@@ -226,7 +228,7 @@ expression:
 expression_sub:
 	  expression_sub '-' term
 		@{	@t check_depth (@term.type@, 0);
-			@i @expression_sub.code@ = create_code (TT_SUB, @expression_sub.1.code@, @term.code@);
+			@i @expression_sub.code@ = optimize_immediate (create_code (TT_SUB, @expression_sub.1.code@, @term.code@), @expression_sub.1.immediate@, @term.immediate@);
 			@i @expression_sub.0.immediate@ = @expression_sub.1.immediate@ && @term.immediate@;
 		@}
 	| term '-' term
@@ -238,7 +240,7 @@ expression_sub:
 expression_add:
 	  term '+' expression_add
 		@{	@t check_depth (@term.type@, 0);
-			@i @expression_add.code@ = create_code (TT_ADD, @term.code@, @expression_add.1.code@);
+			@i @expression_add.code@ = optimize_immediate (create_code (TT_ADD, @term.code@, @expression_add.1.code@), @term.immediate@, @expression_add.1.immediate@);
 			@i @expression_add.0.immediate@ = @expression_add.1.immediate@ && @term.immediate@;
 		@}
 	| term '+' term
@@ -250,7 +252,7 @@ expression_add:
 expression_mult:
 	  term '*' expression_mult
 		@{	@t check_depth (@term.type@, 0);
-			@i @expression_mult.code@ = create_code (TT_MULT, @term.code@, @expression_mult.1.code@);
+			@i @expression_mult.code@ = optimize_immediate (create_code (TT_MULT, @term.code@, @expression_mult.1.code@), @term.immediate@, @expression_mult.1.immediate@);
 			@i @expression_mult.0.immediate@ = @expression_mult.1.immediate@ && @term.immediate@;
 		@}
 	| term '*' term
