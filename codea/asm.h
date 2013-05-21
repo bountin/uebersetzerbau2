@@ -11,6 +11,7 @@ char* asm_sub (char *p1, char *p2);
 char* asm_mult (char *p1, char *p2);
 
 char *asm_array_read (char *base, char *offset);
+char *asm_array_read_const (char *base, long offset);
 
 void asm_ret ();
 

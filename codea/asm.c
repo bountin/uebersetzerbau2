@@ -141,6 +141,19 @@ char *asm_array_read (char *base, char *offset)
 	return r;
 }
 
+char *asm_array_read_const (char *base, long offset)
+{
+	char *r = newreg ();
+
+	#ifdef MY_DEBUG
+	printf ("\t#asm_array_read_const (%s, %l)\n", base, offset);
+	#endif
+
+	printf ("\tmovq %i(%%%s), %%%s\n", sizeof (long) * offset, base, r);
+
+	return r;
+}
+
 void asm_ret (void)
 {
 	printf ("\tret\n");
