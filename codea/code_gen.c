@@ -4,7 +4,7 @@
 
 #include "code_gen.h"
 
-void execute_iburg (code_ptr* code)
+void execute_iburg (struct code* code)
 {
 	burm_label (code);
 	burm_reduce (code, 1);
@@ -16,9 +16,9 @@ void not_supported (char *production)
 	exit (3);
 }
 
-code_ptr* create_code(int type, code_ptr *left_child, code_ptr *right_child)
+struct code* create_code (int type, struct code *left_child, struct code *right_child)
 {
-	code_ptr *c = (code_ptr *)malloc (sizeof (code_ptr));
+	struct code *c = malloc (sizeof (struct code));
 
 	OP_LABEL (c)    = type;
 	LEFT_CHILD (c)  = left_child;
@@ -27,18 +27,18 @@ code_ptr* create_code(int type, code_ptr *left_child, code_ptr *right_child)
 	return c;
 }
 
-code_ptr *create_code_num (long number)
+struct code *create_code_num (long number)
 {
-	code_ptr *c = create_code (TT_NUM, NULL, NULL);
+	struct code *c = create_code (TT_NUM, NULL, NULL);
 	c->val = number;
 	return c;
 }
 
-code_ptr* create_code_var(char *name, struct symbol *params, struct symbol *vars)
+struct code* create_code_var (char *name, struct symbol *params, struct symbol *vars)
 {
 	// --XXX-- THIS CODE ONLY(!) CHECKS PARAMS FOR CODEA
 	char *reg;
-	code_ptr *c;
+	struct code *c;
 
 	check_variable (name, params, vars);
 	reg = tbl_find_reg (name, params);
@@ -48,7 +48,7 @@ code_ptr* create_code_var(char *name, struct symbol *params, struct symbol *vars
 	return c;
 }
 
-code_ptr *create_code_nop ()
+struct code *create_code_nop ()
 {
 	return create_code (TT_NOP, NULL, NULL);
 }
@@ -76,7 +76,7 @@ struct symbol *gen_para_regs (struct symbol *parameters)
 	return para_start;
 }
 
-void code_print (code_ptr *c)
+void code_print (struct code *c)
 {
 	printf ("# - CODE INFO\n");
 	printf ("#  op: %i\n#  val: %li\n#  name: %s\n#  reg: %s\n#  LC: %p\n#  RC: %p\n", c->op, c->val, c->name, c->reg, LEFT_CHILD(c), RIGHT_CHILD(c));

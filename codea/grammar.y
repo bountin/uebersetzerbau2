@@ -36,12 +36,12 @@ main () { yyparse(); }
 @attributes {char *name;} 	T_IDENTIFIER
 
 @attributes {struct symbol *params, *vars;}						stats
-@attributes {struct symbol *params, *vars, *vars_out; struct code_ptr *code;}		stat
+@attributes {struct symbol *params, *vars, *vars_out; struct code *code;}		stat
 @attributes {struct symbol *params_out, *params_in;	} 				parameters parameters_with_vardefs
 
-@attributes {struct symbol *params, *vars; struct code_ptr *code; } 			expression_add expression_mult expression_sub term_boolean boolean
+@attributes {struct symbol *params, *vars; struct code *code; } 			expression_add expression_mult expression_sub term_boolean boolean
 @attributes {struct symbol *params, *vars;} 						call_parameters
-@attributes {struct symbol *params, *vars; struct type *type; struct code_ptr *code;}	term expression l_expression
+@attributes {struct symbol *params, *vars; struct type *type; struct code *code;}	term expression l_expression
 
 @attributes {int depth; }								type
 @attributes {struct type *type; }							vardef

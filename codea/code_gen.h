@@ -28,15 +28,14 @@ enum {
 #endif
 
 /** code tree for iburg **/
-struct code_ptr {
+struct code {
 	int op;
-	struct code_ptr *kids[2];
+	struct code *kids[2];
 	STATEPTR_TYPE state;
 	long val;
 	char *name;
 	char *reg;
 };
-typedef struct code_ptr code_ptr;
 
 /** iburg macros **/
 #define OP_LABEL(p) ((p)->op)
@@ -44,7 +43,7 @@ typedef struct code_ptr code_ptr;
 #define RIGHT_CHILD(p) ((p)->kids[1])
 #define STATE_LABEL(p) ((p)->state)
 #define PANIC printf
-#define NODEPTR_TYPE code_ptr*
+#define NODEPTR_TYPE struct code*
 
 #define    REG(p) ((p)->reg)
 #define LC_REG(p) (LEFT_CHILD(p)->reg)
@@ -53,17 +52,17 @@ typedef struct code_ptr code_ptr;
 #define LC_VAL(p) (LEFT_CHILD(p)->val)
 #define RC_VAL(p) (RIGHT_CHILD(p)->val)
 
-void execute_iburg (code_ptr *code);
+void execute_iburg (struct code *code);
 void not_supported (char *production);
 
-code_ptr* create_code (int type, code_ptr *left_child, code_ptr *right_child);
-code_ptr* create_code_num (long number);
-code_ptr* create_code_var (char *name, struct symbol *params, struct symbol *vars);
-code_ptr* create_code_arr_read (void);
-code_ptr* create_code_nop (void);
+struct code* create_code (int type, struct code *left_child, struct code *right_child);
+struct code* create_code_num (long number);
+struct code* create_code_var (char *name, struct symbol *params, struct symbol *vars);
+struct code* create_code_arr_read (void);
+struct code* create_code_nop (void);
 
 struct symbol* gen_para_regs (struct symbol *parameters);
 
-void code_print (code_ptr *code);
+void code_print (struct code *code);
 
 #endif
