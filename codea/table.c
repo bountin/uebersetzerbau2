@@ -4,7 +4,7 @@
 
 #include "table.h"
 
-struct symbol* tbl_add_symbol (struct symbol *table, struct type *type) {
+struct symbol* table_add_symbol (struct symbol *table, struct type *type) {
 	struct symbol *s = malloc (sizeof(struct symbol));
 
 	s->type = type;
@@ -16,7 +16,7 @@ struct symbol* tbl_add_symbol (struct symbol *table, struct type *type) {
 int table_has_symbol (struct symbol *table, const char *name) {
 	struct symbol *s = table;
 
-	if (s == (struct symbol *)NULL) /* empty tbl haz no symbol */
+	if (s == (struct symbol *)NULL) /* empty table haz no symbol */
 		return 0;
 
 	if (strcmp (s->type->name, name) == 0)
@@ -34,7 +34,7 @@ int table_has_symbol (struct symbol *table, const char *name) {
 void table_print (struct symbol *table) {
 	struct symbol *s = table;
 
-	printf("Tbl dump:\n");
+	printf("Table dump:\n");
 
 	if (table == (struct symbol *) NULL) {
 		printf ("Empty\n\n");
@@ -48,7 +48,7 @@ void table_print (struct symbol *table) {
 	printf ("%s (D:%d)\n\n", s->type->name, s->type->depth);
 }
 
-char *tbl_find_reg (char *name, struct symbol *s)
+char *table_find_reg (char *name, struct symbol *s)
 {
 	while (s != NULL) {
 		if (strcmp (s->type->name, name) == 0) {
@@ -60,6 +60,6 @@ char *tbl_find_reg (char *name, struct symbol *s)
 		s = s->next;
 	}
 
-	printf("THIS SHOULD NEVER HAPPEN (tbl_find_reg(%s))", name);
+	printf("THIS SHOULD NEVER HAPPEN (table_find_reg(%s))", name);
 	exit (4);
 }

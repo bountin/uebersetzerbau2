@@ -88,10 +88,10 @@ parameters:
 parameters_with_vardefs:
 	  vardef ',' parameters_with_vardefs
 		@{	@i @parameters_with_vardefs.1.params_in@ = @parameters_with_vardefs.0.params_in@;
-			@i @parameters_with_vardefs.0.params_out@ = tbl_add_symbol (@parameters_with_vardefs.1.params_out@, @vardef.type@);
+			@i @parameters_with_vardefs.0.params_out@ = table_add_symbol (@parameters_with_vardefs.1.params_out@, @vardef.type@);
 		@}
 	| vardef
-		@{	@i @parameters_with_vardefs.params_out@ = tbl_add_symbol (@parameters_with_vardefs.params_in@, @vardef.type@);
+		@{	@i @parameters_with_vardefs.params_out@ = table_add_symbol (@parameters_with_vardefs.params_in@, @vardef.type@);
 		@}
 	;
 vardef:
@@ -137,7 +137,7 @@ stat:
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("while");
 		@}
 	| T_VAR vardef T_ASSIGN expression
-		@{	@i @stat.vars_out@ = tbl_add_symbol (@stat.vars@, @vardef.type@);
+		@{	@i @stat.vars_out@ = table_add_symbol (@stat.vars@, @vardef.type@);
 
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("variable definition");
 

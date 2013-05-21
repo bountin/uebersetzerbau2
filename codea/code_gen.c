@@ -41,7 +41,7 @@ struct code* create_code_var (char *name, struct symbol *params, struct symbol *
 	struct code *c;
 
 	check_variable (name, params, vars);
-	reg = tbl_find_reg (name, params);
+	reg = table_find_reg (name, params);
 	c = create_code (TT_VARIABLE, NULL, NULL);
 	c->name = strdup (name);
 	c->reg = reg;

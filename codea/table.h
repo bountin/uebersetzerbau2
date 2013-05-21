@@ -9,9 +9,9 @@ struct symbol {
 
 #include "type.h"
 
-struct symbol *tbl_add_symbol (struct symbol *table, struct type *type);
+struct symbol *table_add_symbol (struct symbol *table, struct type *type);
 int table_has_symbol (struct symbol *table, const char *name);
 void table_print (struct symbol *table);
-char *tbl_find_reg (char *name, struct symbol *table);
+char *table_find_reg (char *name, struct symbol *table);
 
 #endif
