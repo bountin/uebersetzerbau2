@@ -12,7 +12,7 @@ struct type* create_type (const char *name, const int depth)
 	type->depth = depth;
 
 	if (depth < 0) {
-		printf ("AG: non-positive depth is not allowed\n");
+		printf ("AG: non-positive depth is not allowed (name: %s, depth: %i)\n", name, depth);
 		exit (3);
 	}
 
