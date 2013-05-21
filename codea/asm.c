@@ -130,11 +130,19 @@ char *asm_mult (char *p1, char *p2)
 
 char *asm_array_read (char *base, char *offset)
 {
-	char *r = newreg ();
+	char *r;
 
 	#ifdef MY_DEBUG
 	printf ("\t#asm_array_read (%s, %s)\n", base, offset);
 	#endif
+
+	if (reg_is_tmp (base))
+		r = base;
+	else
+		if (reg_is_tmp (offset))
+			r = offset;
+		else
+			r = newreg ();
 
 	printf ("\tmovq (%%%s, %%%s, %i), %%%s\n", base, offset, sizeof (long), r);
 
@@ -143,11 +151,16 @@ char *asm_array_read (char *base, char *offset)
 
 char *asm_array_read_const (char *base, long offset)
 {
-	char *r = newreg ();
+	char *r;
 
 	#ifdef MY_DEBUG
 	printf ("\t#asm_array_read_const (%s, %l)\n", base, offset);
 	#endif
+
+	if(reg_is_tmp (base))
+		r = base;
+	else
+		r = newreg ();
 
 	printf ("\tmovq %i(%%%s), %%%s\n", sizeof (long) * offset, base, r);
 
