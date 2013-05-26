@@ -90,8 +90,10 @@ char *asm_sub (char *p1, char *p2)
 		r = p1;
 	} else if (reg_is_param (p1) && reg_is_tmp (p2)) {
 		// p1: param, p2: tmp
-		printf ("\tsubq %%%s, %%%s\n", p1, p2);
-		r = p2;
+		r = newreg ();
+		printf ("\tmovq %%%s, %%%s\n", p1, r);
+		printf ("\tsubq %%%s, %%%s\n", p2, r);
+		freereg (p2);
 	}
 
 	return r;
