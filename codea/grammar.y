@@ -128,29 +128,29 @@ stat:
 	| T_IF boolean T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("if");
+			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("if");
 		@}
 	| T_IF boolean T_THEN stats T_ELSE stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("if with else");
+			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("if with else");
 		@}
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("while");
+			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("while");
 		@}
 	| T_VAR vardef T_ASSIGN expression
 		@{	@i @stat.vars_out@ = table_add_symbol (@stat.vars@, @vardef.type@);
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("variable definition");
+			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("variable definition");
 
 			@t check_depth (@expression.type@, @vardef.type@->depth);
 		@}
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("assignment");
+			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("assignment");
 
 			@t check_depth (@expression.type@, @l_expression.type@->depth);
 		@}
@@ -163,7 +163,7 @@ stat:
 
 boolean:
 	  term_boolean T_OR boolean
-		@{	@i @boolean.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("OR");
+		@{	@i @boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("OR");
 			@i @boolean.immediate@ = @term_boolean.immediate@ && @boolean.1.immediate@;
 		@}
 	| term_boolean
@@ -175,16 +175,16 @@ term_boolean:
 		@{	@i @term_boolean.code@ = @boolean.code@;
 		@}
 	| T_NOT term_boolean
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("NOT");
+		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("NOT");
 		@}
 	| expression '<' expression
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("<");
+		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("<");
 			@i @term_boolean.immediate@ = @expression.0.immediate@ && @expression.1.immediate@;
 			@t check_depth (@expression.0.type@, 0);
 			@t check_depth (@expression.1.type@, 0);
 		@}
 	| expression '#' expression
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("#");
+		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("#");
 			@i @term_boolean.immediate@ = @expression.0.immediate@ && @expression.1.immediate@;
 			@t check_depth (@expression.0.type@, 0);
 			@t check_depth (@expression.1.type@, 0);
@@ -194,13 +194,13 @@ term_boolean:
 l_expression:
 	  T_IDENTIFIER
 		@{	@i @l_expression.type@ = create_type ("", get_type (@l_expression.vars@, @l_expression.params@, @T_IDENTIFIER.name@)->depth);
-			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("left expression: ID");
+			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("left expression: ID");
 
 			@t check_variable (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
 		@}
 	| term '[' expression ']'
 		@{	@i @l_expression.type@ = create_type ("", @term.type@->depth - 1);
-			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("left expression: array");
+			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("left expression: array");
 
 			@t check_depth_not_zero (@term.type@);
 			@t check_depth (@expression.type@, 0);
@@ -286,12 +286,12 @@ term:
 		@}
 	| T_IDENTIFIER '(' ')' ':' type
 		@{	@i @term.type@ = create_type ("", @type.depth@);
-			@i @term.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("func call without params");
+			@i @term.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("func call without params");
 			@i @term.immediate@ = 0;
 		@}
 	| T_IDENTIFIER '(' call_parameters ')' ':' type
 		@{	@i @term.type@ = create_type ("", @type.depth@);
-			@i @term.code@ = create_code (TT_NOP, NULL, NULL); not_supported ("func call with params");
+			@i @term.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("func call with params");
 			@i @term.immediate@ = 0;
 		@}
 	;
