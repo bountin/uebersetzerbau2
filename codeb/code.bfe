@@ -12,7 +12,7 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11  TT_NOT=13
+%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13
 %%
 
 stat:	return
@@ -32,9 +32,10 @@ expr:	TT_SUB (term,term)		# 1 #	bnode->reg = asm_sub (LC_REG (bnode), RC_REG (bn
 boolean: term_boolean
 boolean: iboolean			# 1 #	bnode->reg = asm_imov (bnode->val);
 
+term_boolean: TT_CMP_UNEQ (expr, expr)	# 2 #	bnode->reg = asm_cmp_uneq (LC_REG (bnode), RC_REG (bnode));
+term_boolean: TT_CMP_L (expr, expr)	# 2 #	bnode->reg = asm_cmp_l (LC_REG (bnode), RC_REG (bnode));
 term_boolean: TT_NOT (term_boolean)	# 1 # 	bnode->reg = asm_not (LC_REG (bnode));
 term_boolean: boolean
-
 
 unary:	term
 
@@ -50,3 +51,4 @@ iterm:	TT_SUB (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) - RC_VAL (bnode);
 iterm:	TT_MULT (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) * RC_VAL (bnode);
 
 iboolean: TT_CMP_UNEQ (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) != RC_VAL (bnode);
+iboolean: TT_CMP_L (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) < RC_VAL (bnode);

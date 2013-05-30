@@ -193,7 +193,7 @@ term_boolean:
 		@{	@i @term_boolean.code@ = create_code (TT_NOT, @term_boolean.1.code@, NULL);
 		@}
 	| expression '<' expression
-		@{	@i @term_boolean.code@ = create_code_nop ();
+		@{	@i @term_boolean.code@ = create_code (TT_CMP_L, @expression.0.code@, @expression.1.code@);
 			@i @term_boolean.immediate@ = @expression.0.immediate@ && @expression.1.immediate@;
 			@t check_depth (@expression.0.type@, 0);
 			@t check_depth (@expression.1.type@, 0);

@@ -223,6 +223,31 @@ char *asm_cmp_uneq (char *r1, char *r2)
 	return r;
 }
 
+char *asm_cmp_l (char *r1, char *r2)
+{
+	char *r;
+
+	#ifdef MY_DEBUG
+	printf ("\t# asm_cmp_l (%s, %s)\n", r1, r2);
+	printf ("\t# r1: %i, r2: %i\n", reg_is_param (r1), reg_is_param (r2));
+	#endif
+
+	if (reg_is_tmp (r1)) {
+		r = r1;
+		if (reg_is_tmp (r2))
+			freereg (r2);
+	} else if (reg_is_tmp (r2))
+		r = r2;
+	else
+		r = newreg ();
+
+	printf ("\tcmp %%%s, %%%s\n", r2, r1);
+	printf ("\tsetl %%%s\n", get_8reg (r));
+	printf ("\tand $1, %%%s\n", r);
+
+	return r;
+}
+
 void asm_ret (void)
 {
 	printf ("\tret\n");

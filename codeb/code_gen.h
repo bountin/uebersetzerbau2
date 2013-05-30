@@ -15,13 +15,13 @@ enum {
 	TT_IF,
 	TT_WHILE,
 	TT_CMP_UNEQ,
+	TT_CMP_L,
 	TT_NOT,
 
 	// Later maybe
 	TT_IDENTIFIER,
 	TT_MINUS,
 	TT_AND,
-	TT_CMP_LE,
 	TT_READ
 };
 
