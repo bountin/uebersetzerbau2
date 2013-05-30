@@ -129,9 +129,9 @@ stat:
 
 			@i @stat.code@ = create_code_if (@boolean.code@);
 
-			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
 			@asm execute_iburg (@stat.code@);
-			@asm printf ("\nif_%i_after:\n", @stat.code@->val);
+			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
+			@asm @revorder (1) printf ("\nif_%i_after:\n", @stat.code@->val);
 		@}
 	| T_IF boolean T_THEN stats T_ELSE stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
@@ -143,7 +143,7 @@ stat:
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("while");
+			@i @stat.code@ = create_code_while (@boolean.code@);
 
 			@asm printf ("\nwhile_%i_before:\n", @stat.code@->val);
 			@asm execute_iburg (@stat.code@);
