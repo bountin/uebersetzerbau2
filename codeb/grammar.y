@@ -38,6 +38,7 @@ main () { yyparse(); }
 @attributes {char *name;} 	T_IDENTIFIER
 
 @attributes {struct symbol *params, *vars;}						stats
+@attributes {struct symbol *params, *vars; struct code *code;}				else
 @attributes {struct symbol *params, *vars, *vars_out; struct code *code;}		stat
 @attributes {struct symbol *params_out, *params_in;	} 				parameters parameters_with_vardefs
 
@@ -111,6 +112,13 @@ type:
 		@}
 	;
 
+else:
+	  T_ELSE stats T_END
+		@{	@asm printf ("\tjmp if_%i_after\n", @else.code@->val);
+			@asm printf ("if_%i_false:\n", @else.code@->val);
+		@}
+	;
+
 stats:
 	  stat ';' stats
 		@{	@i @stats.1.vars@ = @stat.vars_out@;
@@ -131,14 +139,17 @@ stat:
 
 			@asm execute_iburg (@stat.code@);
 			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
-			@asm @revorder (1) printf ("\nif_%i_after:\n", @stat.code@->val);
+			@asm @revorder (1) printf ("\nif_%i_false:\n", @stat.code@->val);
 		@}
-	| T_IF boolean T_THEN stats T_ELSE stats T_END
+	| T_IF boolean T_THEN stats else
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("if with else");
+			@i @stat.code@ = create_code_if (@boolean.code@);
+			@i @else.code@ = @stat.code@;
 
 			@asm execute_iburg (@stat.code@);
+			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
+			@asm @revorder (1) printf ("\nif_%i_after:\n", @stat.code@->val);
 		@}
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;

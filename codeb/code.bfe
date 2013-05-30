@@ -18,8 +18,8 @@
 stat:	return
 return: TT_RETURN (expr)		# 2 #	asm_mov (LC_REG (bnode), "rax"); asm_ret ();
 
-stat:	TT_IF (boolean)			# 2 #	printf("\tcmp $0, %%%s\n\tjz if_%i_after\n", LC_REG (bnode), bnode->val);
-stat:	TT_IF (iboolean)		# 1 #	if (LC_VAL (bnode) == 0)  printf("\tjmp if_%i_after\n", bnode->val);
+stat:	TT_IF (boolean)			# 2 #	printf("\tcmp $0, %%%s\n\tjz if_%i_false\n", LC_REG (bnode), bnode->val);
+stat:	TT_IF (iboolean)		# 1 #	if (LC_VAL (bnode) == 0)  printf("\tjmp if_%i_false\n", bnode->val);
 
 stat:	TT_WHILE (boolean)		# 2 #	printf ("\tcmp $0, %%%s\n\tjz while_%i_after\n\n", LC_REG (bnode), LC_VAL (bnode));
 stat:	TT_WHILE (iboolean)		# 1 #	if (LC_VAL (bnode) == 0) printf ("\tjmp while_%i_after\n", bnode->val); else asm_loop_eternity (bnode->val);
