@@ -128,7 +128,9 @@ stat:
 	| T_IF boolean T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("if");
+			@i @stat.code@ = create_code_if (@boolean.code@);
+
+			@asm @revorder(1) printf ("\nif_%i:\n", @stat.code@->val);
 		@}
 	| T_IF boolean T_THEN stats T_ELSE stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
@@ -175,16 +177,16 @@ term_boolean:
 		@{	@i @term_boolean.code@ = @boolean.code@;
 		@}
 	| T_NOT term_boolean
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("NOT");
+		@{	@i @term_boolean.code@ = create_code_nop ();
 		@}
 	| expression '<' expression
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("<");
+		@{	@i @term_boolean.code@ = create_code_nop ();
 			@i @term_boolean.immediate@ = @expression.0.immediate@ && @expression.1.immediate@;
 			@t check_depth (@expression.0.type@, 0);
 			@t check_depth (@expression.1.type@, 0);
 		@}
 	| expression '#' expression
-		@{	@i @term_boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("#");
+		@{	@i @term_boolean.code@ = create_code (TT_CMP_UNEQ, @expression.0.code@, @expression.1.code@);
 			@i @term_boolean.immediate@ = @expression.0.immediate@ && @expression.1.immediate@;
 			@t check_depth (@expression.0.type@, 0);
 			@t check_depth (@expression.1.type@, 0);

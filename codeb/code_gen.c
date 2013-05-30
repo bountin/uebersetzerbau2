@@ -16,6 +16,13 @@ void not_supported (char *production)
 	exit (3);
 }
 
+static long get_control_label_id (void)
+{
+	static long id = 0;
+
+	return id++;
+}
+
 struct code* create_code (int type, struct code *left_child, struct code *right_child)
 {
 	struct code *c = malloc (sizeof (struct code));
@@ -45,6 +52,16 @@ struct code* create_code_var (char *name, struct symbol *params, struct symbol *
 	c = create_code (TT_VARIABLE, NULL, NULL);
 	c->name = strdup (name);
 	c->reg = reg;
+	return c;
+}
+
+struct code* create_code_if (struct code *condition)
+{
+	struct code *c;
+
+	c = create_code (TT_IF, condition, NULL);
+	c->val = get_control_label_id ();
+
 	return c;
 }
 

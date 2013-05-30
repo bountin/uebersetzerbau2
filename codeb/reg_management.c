@@ -17,6 +17,28 @@ int get_reg_number (char *r)
 	exit(3);
 }
 
+char *get_8reg (char *r)
+{
+	if (strcmp (r, "rax") == 0)
+		return "al";
+	else if (strcmp (r, "r11") == 0)
+		return "r11b";
+	else if (strcmp (r, "rdi") == 0)
+		return "dil";
+	else if (strcmp (r, "rsi") == 0)
+		return "sil";
+	else if (strcmp (r, "rdx") == 0)
+		return "dl";
+	else if (strcmp (r, "rcx") == 0)
+		return "cl";
+	else if (strcmp (r, "r8") == 0)
+		return "r8b";
+	else if (strcmp (r, "r9") == 0)
+		return "r9b";
+	else
+		printf("Unknown register: get_8reg(%s)\n", r);
+}
+
 void reg_init (struct symbol* paras)
 {
 	// The first 6 may be used by parameters

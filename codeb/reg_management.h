@@ -8,6 +8,8 @@
 char	*reg[REG_MAX];
 int	 reg_usage[REG_MAX];
 
+char *get_8reg (char *r);
+
 void reg_init (struct symbol *params);
 char *newreg ();
 void freereg (char *reg);

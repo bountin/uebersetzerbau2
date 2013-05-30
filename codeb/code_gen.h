@@ -12,13 +12,14 @@ enum {
 	TT_MULT,
 	TT_VARIABLE,
 	TT_ARR_READ,
+	TT_IF,
+	TT_CMP_UNEQ,
 
 	// Later maybe
 	TT_IDENTIFIER,
 	TT_MINUS,
 	TT_AND,
 	TT_CMP_LE,
-	TT_CMP_NE,
 	TT_NOT,
 	TT_READ
 };
@@ -63,6 +64,9 @@ struct code* create_code (int type, struct code *left_child, struct code *right_
 struct code* create_code_num (long number);
 struct code* create_code_var (char *name, struct symbol *params, struct symbol *vars);
 struct code* create_code_arr_read (void);
+
+struct code* create_code_if (struct code *condition);
+
 struct code* create_code_nop (void);
 
 struct symbol* gen_para_regs (struct symbol *parameters);
