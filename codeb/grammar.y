@@ -52,7 +52,6 @@ main () { yyparse(); }
 /** Checking symbol tables **/
 @traversal @preorder t
 
-@traversal @postorder @righttoleft optim
 @traversal @preorder asm
 
 %%
