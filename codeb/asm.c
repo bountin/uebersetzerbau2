@@ -169,6 +169,35 @@ char *asm_array_read_const (char *base, long offset)
 	return r;
 }
 
+char *asm_not (char *o)
+{
+	char *r;
+	static long id = 0;
+
+	#ifdef MY_DEBUG
+	printf ("\t# asm_not (%s)\n", o);
+	printf ("\t# p(o): %i\n", reg_is_param (o));
+	#endif
+
+	if (reg_is_tmp (o))
+		r = o;
+	else
+		r = newreg ();
+
+	printf ("\tcmp $0, %%%s\n", o);
+	printf ("\tjz not_%i_yes\n", id);
+	printf ("not_%i_no:\n", id);
+	printf ("\tmov $0, %%%s\n", r);
+	printf ("\tjmp not_%i_after\n", id);
+	printf ("not_%i_yes:\n", id);
+	printf ("\tmov $1, %%%s\n", r);
+	printf ("\nnot_%i_after:\n", id);
+
+	id++;
+
+	return r;
+}
+
 char *asm_cmp_uneq (char *r1, char *r2)
 {
 	char *r;
