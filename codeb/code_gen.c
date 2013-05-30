@@ -65,6 +65,16 @@ struct code* create_code_if (struct code *condition)
 	return c;
 }
 
+struct code* create_code_while (struct code *condition)
+{
+	struct code *c;
+
+	c = create_code (TT_WHILE, condition, NULL);
+	c->val = get_control_label_id ();
+
+	return c;
+}
+
 struct code *create_code_nop ()
 {
 	return create_code (TT_NOP, NULL, NULL);

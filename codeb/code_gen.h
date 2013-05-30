@@ -13,6 +13,7 @@ enum {
 	TT_VARIABLE,
 	TT_ARR_READ,
 	TT_IF,
+	TT_WHILE,
 	TT_CMP_UNEQ,
 
 	// Later maybe
@@ -66,6 +67,7 @@ struct code* create_code_var (char *name, struct symbol *params, struct symbol *
 struct code* create_code_arr_read (void);
 
 struct code* create_code_if (struct code *condition);
+struct code* create_code_while (struct code *condition);
 
 struct code* create_code_nop (void);
 

@@ -15,6 +15,8 @@ char *asm_array_read_const (char *base, long offset);
 
 char *asm_cmp_uneq (char *r1, char *r2);
 
-void asm_ret ();
+void asm_ret (void);
+
+void asm_loop_eternity (long id);
 
 #endif

@@ -115,32 +115,40 @@ type:
 stats:
 	  stat ';' stats
 		@{	@i @stats.1.vars@ = @stat.vars_out@;
-			@asm execute_iburg (@stat.code@);
 		@}
 	|
 	;
 stat:
 	  T_RETURN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
-
 			@i @stat.code@ = create_code (TT_RETURN, @expression.code@, NULL);
+
+			@asm execute_iburg (@stat.code@);
 		@}
 	| T_IF boolean T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
 			@i @stat.code@ = create_code_if (@boolean.code@);
 
-			@asm @revorder(1) printf ("\nif_%i:\n", @stat.code@->val);
+			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
+			@asm execute_iburg (@stat.code@);
+			@asm printf ("\nif_%i_after:\n", @stat.code@->val);
 		@}
 	| T_IF boolean T_THEN stats T_ELSE stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("if with else");
+
+			@asm execute_iburg (@stat.code@);
 		@}
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("while");
+
+			@asm printf ("\nwhile_%i_before:\n", @stat.code@->val);
+			@asm execute_iburg (@stat.code@);
+			@asm @revorder(1) printf ("\n\tjmp while_%1$i_before\n\nwhile_%1$i_after:\n", @stat.code@->val);
 		@}
 	| T_VAR vardef T_ASSIGN expression
 		@{	@i @stat.vars_out@ = table_add_symbol (@stat.vars@, @vardef.type@);
@@ -148,6 +156,8 @@ stat:
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("variable definition");
 
 			@t check_depth (@expression.type@, @vardef.type@->depth);
+
+			@asm execute_iburg (@stat.code@);
 		@}
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
@@ -155,11 +165,15 @@ stat:
 			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("assignment");
 
 			@t check_depth (@expression.type@, @l_expression.type@->depth);
+
+			@asm execute_iburg (@stat.code@);
 		@}
 	| term
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
 			@i @stat.code@ = @term.code@;
+
+			@asm execute_iburg (@stat.code@);
 		@}
 	;
 

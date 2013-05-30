@@ -198,3 +198,8 @@ void asm_ret (void)
 {
 	printf ("\tret\n");
 }
+
+void asm_loop_eternity (long id)
+{
+	printf ("loop_eternity_%1$i:\njmp loop_eternity_%1$i\n", id);
+}
