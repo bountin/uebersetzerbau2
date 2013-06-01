@@ -219,13 +219,15 @@ term_boolean:
 l_expression:
 	  T_IDENTIFIER
 		@{	@i @l_expression.type@ = create_type ("", get_type (@l_expression.vars@, @l_expression.params@, @T_IDENTIFIER.name@)->depth);
-			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("left expression: ID");
+			@i @l_expression.code@ = create_code_var (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
 
 			@t check_variable (@T_IDENTIFIER.name@, @l_expression.params@, @l_expression.vars@);
+
+			@z if (@l_expression.code@->reg == NULL) { /* !parameter but var */ @l_expression.code@->reg = table_find_symbol (@T_IDENTIFIER.name@, @l_expression.vars@)->reg; printf ("# %s >> %s\n", @T_IDENTIFIER.name@, @l_expression.code@->reg); }
 		@}
 	| term '[' expression ']'
 		@{	@i @l_expression.type@ = create_type ("", @term.type@->depth - 1);
-			@i @l_expression.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("left expression: array");
+			@i @l_expression.code@ = create_code (TT_ARRAY, @term.code@, @expression.code@);
 
 			@t check_depth_not_zero (@term.type@);
 			@t check_depth (@expression.type@, 0);

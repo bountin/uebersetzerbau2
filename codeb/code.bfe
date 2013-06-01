@@ -13,7 +13,7 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13 TT_DEF=14 TT_ASSIGN=15
+%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13 TT_DEF=14 TT_ASSIGN=15 TT_ARRAY=16
 %%
 
 stat:	return
@@ -28,6 +28,9 @@ stat:	TT_WHILE (iboolean)		# 1 #	if (LC_VAL (bnode) == 0) printf ("\tjmp while_%
 stat:	TT_DEF (expr)			# 1 #	set_var_reg (bnode->reg); asm_mov (LC_REG (bnode), bnode->reg);
 
 stat:	TT_ASSIGN (TT_VARIABLE, expr)	# 1 #	asm_mov (RC_REG (bnode), LC_REG (bnode));
+stat:	TT_ASSIGN (arr_write, expr)	# 1 #	printf ("\tmov %%%s, (%%%s)\n", RC_REG (bnode), LC_REG (bnode));
+
+arr_write: TT_ARRAY (term, expr)	# 0 #	bnode->reg = asm_array_write_2 (LC_REG (bnode), RC_REG (bnode));
 
 expr:	unary
 expr:	TT_MULT (term,term)		# 1 #	bnode->reg = asm_mult (LC_REG (bnode), RC_REG (bnode));

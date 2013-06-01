@@ -20,6 +20,7 @@ enum {
 	TT_NOT,
 	TT_DEF,
 	TT_ASSIGN,
+	TT_ARRAY,
 
 	// Later maybe
 	TT_IDENTIFIER,

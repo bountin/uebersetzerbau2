@@ -5,6 +5,19 @@
 #include "asm.h"
 #include "reg_management.h"
 
+
+
+char *asm_array_write_2 (char *l, char *r)
+{
+	char *x = newreg ();
+
+	asm_mov (r, x);
+	printf ("\timul $%i, %%%s\n", sizeof (long), x);
+	x = asm_add (x, l);
+
+	return x;
+}
+
 void asm_func_head (char *func_name)
 {
 	printf(".globl %1$s\n.type %1$s, @function\n%1$s:\n", func_name);
@@ -131,6 +144,20 @@ char *asm_mult (char *p1, char *p2)
 	return r;
 }
 
+void asm_array_write (char *base, char *offset, char *src)
+{
+	#ifdef MY_DEBUG
+	printf ("\t# asm_array_write (%s, %s, %s)\n", base, offset, src);
+	#endif
+
+	if (reg_is_tmp (base))
+		freereg (base);
+	if (reg_is_tmp (offset))
+		freereg (offset);
+
+	printf ("\tmovq %%%s, (%%%s, %%%s, %i)", src, base, offset, sizeof (long));
+}
+
 char *asm_array_read (char *base, char *offset)
 {
 	char *r;
@@ -157,7 +184,7 @@ char *asm_array_read_const (char *base, long offset)
 	char *r;
 
 	#ifdef MY_DEBUG
-	printf ("\t#asm_array_read_const (%s, %l)\n", base, offset);
+	printf ("\t#asm_array_read_const (%s, %i)\n", base, offset);
 	#endif
 
 	if(reg_is_tmp (base))
