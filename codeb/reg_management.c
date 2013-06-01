@@ -72,6 +72,7 @@ char *newreg (void)
 		if (reg[i] == NULL) { break; }
 		if (reg_usage[i] == 0) {
 			reg_usage[i] = 1;
+			printf ("# newreg: %s\n", reg[i]);
 			return reg[i];
 		}
 	}

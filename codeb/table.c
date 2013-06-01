@@ -34,18 +34,18 @@ int table_has_symbol (struct symbol *table, const char *name) {
 void table_print (struct symbol *table) {
 	struct symbol *s = table;
 
-	printf("Table dump:\n");
+	printf("# Table dump:\n");
 
 	if (table == (struct symbol *) NULL) {
-		printf ("Empty\n\n");
+		printf ("# Empty\n\n");
 		return;
 	}
 
 	while (s->next != (struct symbol *)NULL) {
-		printf ("%s (D:%d)\n", s->type->name, s->type->depth);
+		printf ("# %s (D:%d)\n", s->type->name, s->type->depth);
 		s = s->next;
 	}
-	printf ("%s (D:%d)\n\n", s->type->name, s->type->depth);
+	printf ("# %s (D:%d)\n\n", s->type->name, s->type->depth);
 }
 
 char *table_find_reg (char *name, struct symbol *s)

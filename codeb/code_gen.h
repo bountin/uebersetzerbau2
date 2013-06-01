@@ -2,6 +2,7 @@
 #define CODE_GEN_H
 
 #include "table.h"
+#include "common.h"
 
 enum {
 	TT_RETURN=1,

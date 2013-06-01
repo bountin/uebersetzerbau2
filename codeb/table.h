@@ -1,6 +1,8 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include "common.h"
+
 struct symbol {
 	struct symbol *next;
 	struct type *type;

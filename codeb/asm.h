@@ -1,6 +1,8 @@
 #ifndef ASM_H
 #define ASM_H
 
+#include "common.h"
+
 void asm_func_head (char *func_name);
 
 void asm_mov (char *src, char *dest);

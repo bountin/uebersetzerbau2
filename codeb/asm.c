@@ -5,8 +5,6 @@
 #include "asm.h"
 #include "reg_management.h"
 
-#define MY_DEBUG
-
 void asm_func_head (char *func_name)
 {
 	printf(".globl %1$s\n.type %1$s, @function\n%1$s:\n", func_name);
@@ -15,7 +13,8 @@ void asm_func_head (char *func_name)
 void asm_mov (char *src, char *dest)
 {
 	#ifdef MY_DEBUG
-	printf("\t# asm_mov(%s, %s)\n", src, dest);
+	printf ("\t# asm_mov(%s, %s)\n", src, dest);
+	printf ("\t# src: %i, dest: %i\n", reg_is_param (src), reg_is_param (dest));
 	#endif
 
 	if (strcmp (src, dest)) {
