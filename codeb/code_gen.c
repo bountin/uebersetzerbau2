@@ -71,7 +71,7 @@ struct code* create_code_definition (struct code *expr, struct symbol *s)
 {
 	struct code *c;
 
-	c = create_code (TT_ASSIGN, expr, NULL);
+	c = create_code (TT_DEF, expr, NULL);
 	c->reg = s->reg;
 
 	return c;

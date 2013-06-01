@@ -18,6 +18,7 @@ enum {
 	TT_CMP_UNEQ,
 	TT_CMP_L,
 	TT_NOT,
+	TT_DEF,
 	TT_ASSIGN,
 
 	// Later maybe

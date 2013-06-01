@@ -136,7 +136,6 @@ stat:
 		@}
 	| T_IF boolean T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
-
 			@i @stat.code@ = create_code_if (@boolean.code@);
 
 			@asm execute_iburg (@stat.code@);
@@ -145,7 +144,6 @@ stat:
 		@}
 	| T_IF boolean T_THEN stats else
 		@{	@i @stat.vars_out@ = @stat.vars@;
-
 			@i @stat.code@ = create_code_if (@boolean.code@);
 			@i @else.code@ = @stat.code@;
 
@@ -155,7 +153,6 @@ stat:
 		@}
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
-
 			@i @stat.code@ = create_code_while (@boolean.code@);
 
 			@asm printf ("\nwhile_%i_before:\n", @stat.code@->val);
@@ -175,8 +172,7 @@ stat:
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
 
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("assignment");
-
+			@i @stat.code@ = create_code (TT_ASSIGN, @l_expression.code@, @expression.code@);
 			@t check_depth (@expression.type@, @l_expression.type@->depth);
 
 			@asm execute_iburg (@stat.code@);
