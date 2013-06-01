@@ -48,18 +48,14 @@ void table_print (struct symbol *table) {
 	printf ("# %s (D:%d)\n\n", s->type->name, s->type->depth);
 }
 
-char *table_find_reg (char *name, struct symbol *s)
+struct symbol *table_find_symbol (const char *name, struct symbol *s)
 {
 	while (s != NULL) {
 		if (strcmp (s->type->name, name) == 0) {
-			#ifdef MY_DEBUG
-			printf ("# -- Found %s: register %s", name, s->reg);
-			#endif
-			return strdup (s->reg);
+			return s;
 		}
 		s = s->next;
 	}
 
-	printf("THIS SHOULD NEVER HAPPEN (table_find_reg(%s))", name);
-	exit (4);
+	return NULL;
 }

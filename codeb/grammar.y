@@ -53,6 +53,7 @@ main () { yyparse(); }
 /** Checking symbol tables **/
 @traversal @preorder t
 
+@traversal @preorder z
 @traversal @preorder asm
 
 %%
@@ -75,7 +76,8 @@ function:
 			@i @stats.vars@ = NULL;
 
 			@t check_uniqueness (@parameters.params_out@);
-			@asm reg_init (@stats.params@);
+
+			@z reg_init (@stats.params@);
 			@asm asm_func_head(@T_IDENTIFIER.name@);
 		@}
 	;
@@ -162,10 +164,11 @@ stat:
 		@}
 	| T_VAR vardef T_ASSIGN expression
 		@{	@i @stat.vars_out@ = table_add_symbol (@stat.vars@, @vardef.type@);
-
-			@i @stat.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("variable definition");
+			@i @stat.code@ = create_code_definition (@expression.code@, @stat.vars_out@);
 
 			@t check_depth (@expression.type@, @vardef.type@->depth);
+
+			@z @stat.vars_out@->reg = newvarreg (); @stat.code@->reg = @stat.vars_out@->reg;
 
 			@asm execute_iburg (@stat.code@);
 		@}
@@ -309,6 +312,8 @@ term:
 			@i @term.immediate@ = 0;
 
 			@t check_variable (@T_IDENTIFIER.name@, @term.params@, @term.vars@);
+
+			@z if (@term.code@->reg == NULL) { /* !parameter but var */ @term.code@->reg = table_find_symbol (@T_IDENTIFIER.name@, @term.vars@)->reg; printf ("# %s >> %s\n", @T_IDENTIFIER.name@, @term.code@->reg); }
 		@}
 	| T_IDENTIFIER '(' ')' ':' type
 		@{	@i @term.type@ = create_type ("", @type.depth@);

@@ -18,6 +18,7 @@ enum {
 	TT_CMP_UNEQ,
 	TT_CMP_L,
 	TT_NOT,
+	TT_ASSIGN,
 
 	// Later maybe
 	TT_IDENTIFIER,
@@ -66,6 +67,7 @@ struct code* create_code (int type, struct code *left_child, struct code *right_
 struct code* create_code_num (long number);
 struct code* create_code_var (char *name, struct symbol *params, struct symbol *vars);
 struct code* create_code_arr_read (void);
+struct code* create_code_definition (struct code *expr, struct symbol *s);
 
 struct code* create_code_if (struct code *condition);
 struct code* create_code_while (struct code *condition);

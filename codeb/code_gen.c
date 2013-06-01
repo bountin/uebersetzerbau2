@@ -44,15 +44,36 @@ struct code *create_code_num (long number)
 
 struct code* create_code_var (char *name, struct symbol *params, struct symbol *vars)
 {
-	// --XXX-- THIS CODE ONLY(!) CHECKS PARAMS FOR CODEA
-	char *reg;
 	struct code *c;
+	struct symbol *s;
 
 	check_variable (name, params, vars);
-	reg = table_find_reg (name, params);
+
+	s = table_find_symbol (name, vars);
+	if (s != NULL) {
+		c = create_code (TT_VARIABLE, NULL, NULL);
+		c->name = strdup (name);
+		c->reg = s->reg;
+		return c;
+	}
+
+	s = table_find_symbol (name, params);
+	assert (s != NULL);
+
 	c = create_code (TT_VARIABLE, NULL, NULL);
 	c->name = strdup (name);
-	c->reg = reg;
+	c->reg = s->reg;
+	printf ("\t\t# bar: %s, %s \n", c->name, c->reg);
+	return c;
+}
+
+struct code* create_code_definition (struct code *expr, struct symbol *s)
+{
+	struct code *c;
+
+	c = create_code (TT_ASSIGN, expr, NULL);
+	c->reg = s->reg;
+
 	return c;
 }
 
