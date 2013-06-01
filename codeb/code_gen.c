@@ -63,7 +63,6 @@ struct code* create_code_var (char *name, struct symbol *params, struct symbol *
 	c = create_code (TT_VARIABLE, NULL, NULL);
 	c->name = strdup (name);
 	c->reg = s->reg;
-	printf ("\t\t# bar: %s, %s \n", c->name, c->reg);
 	return c;
 }
 

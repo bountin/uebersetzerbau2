@@ -24,6 +24,8 @@ char *asm_cmp_uneq (char *r1, char *r2);
 char *asm_cmp_l (char *r1, char *r2);
 char *asm_or (char *p1, char *p2);
 
+void asm_if (char *r, long label);
+
 void asm_ret (void);
 
 void asm_loop_eternity (long id);

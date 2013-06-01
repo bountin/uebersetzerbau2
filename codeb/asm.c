@@ -308,6 +308,13 @@ char *asm_or (char *p1, char *p2)
 	return r;
 }
 
+void asm_if (char *r, long label)
+{
+	if (reg_is_tmp (r))
+		freereg (r);
+	printf("\tcmp $0, %%%s\n\tjz if_%i_false\n", r, label);
+}
+
 void asm_ret (void)
 {
 	printf ("\tret\n");
