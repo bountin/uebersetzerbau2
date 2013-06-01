@@ -188,7 +188,7 @@ stat:
 
 boolean:
 	  term_boolean T_OR boolean
-		@{	@i @boolean.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("OR");
+		@{	@i @boolean.code@ = create_code (TT_OR, @term_boolean.code@, @boolean.1.code@);
 			@i @boolean.immediate@ = @term_boolean.immediate@ && @boolean.1.immediate@;
 		@}
 	| term_boolean

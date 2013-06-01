@@ -21,12 +21,7 @@ enum {
 	TT_DEF,
 	TT_ASSIGN,
 	TT_ARRAY,
-
-	// Later maybe
-	TT_IDENTIFIER,
-	TT_MINUS,
-	TT_AND,
-	TT_READ
+	TT_OR
 };
 
 #ifndef CODE

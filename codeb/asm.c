@@ -276,6 +276,38 @@ char *asm_cmp_l (char *r1, char *r2)
 	return r;
 }
 
+char *asm_or (char *p1, char *p2)
+{
+	char *r;
+
+	#ifdef MY_DEBUG
+	printf ("\t# asm_or (%s, %s)\n", p1, p2);
+	printf ("\t# p1: %i, p2: %i\n", reg_is_param (p1), reg_is_param (p2));
+	#endif
+
+	if (reg_is_param (p1) && reg_is_param (p2)) {
+		// Both operands are parameters
+		r = newreg ();
+		printf ("\tmovq %%%s, %%%s\n", p1, r);
+		printf ("\tor %%%s, %%%s\n", p2, r);
+	} else if (reg_is_tmp (p1) && reg_is_tmp (p2)) {
+		// Both operands are from tmp registers
+		printf ("\tor %%%s, %%%s\n", p2, p1);
+		r = p1;
+		freereg (p2);
+	} else if (reg_is_tmp (p1) && reg_is_param (p2)) {
+		// p1: tmp, p2: param
+		printf ("\tor %%%s, %%%s\n", p2, p1);
+		r = p1;
+	} else if (reg_is_param (p1) && reg_is_tmp (p2)) {
+		// p1: param, p2: tmp
+		printf ("\tor %%%s, %%%s\n", p1, p2);
+		r = p2;
+	}
+
+	return r;
+}
+
 void asm_ret (void)
 {
 	printf ("\tret\n");
