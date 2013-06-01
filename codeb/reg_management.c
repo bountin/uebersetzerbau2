@@ -97,6 +97,10 @@ void set_var_reg (char *r)
 {
 	reg_var[get_reg_number (r)] = 1;
 }
+void clear_var_reg (char *r)
+{
+	reg_var[get_reg_number (r)] = 0;
+}
 
 void freereg (char *r)
 {
@@ -120,4 +124,13 @@ int reg_is_tmp (char *r)
 int reg_is_param (char *r)
 {
 	return !reg_is_tmp(r);
+}
+
+void free_local_vars (struct sym_bucket *table)
+{
+	while (table != NULL) {
+		freereg (table->elem->reg);
+		clear_var_reg (table->elem->reg);
+		table = table->next;
+	}
 }

@@ -51,6 +51,6 @@ comment --.*
 {whitespace} |
 {comment} { /** Do nothing **/ }
 
-. { printf("Lexical error.\n"); exit(1); }
+. { printf("Lexical error: Unexpected \"%s.\"\n", yytext); exit(1); }
 
 %% /***** Code section *****/

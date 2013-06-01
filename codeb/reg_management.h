@@ -17,4 +17,6 @@ void set_var_reg (char *r);
 int reg_is_tmp (char *r);
 int reg_is_param (char *r);
 
+void free_local_vars (struct sym_bucket *table);
+
 #endif

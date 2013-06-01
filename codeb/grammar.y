@@ -31,16 +31,16 @@ main () { yyparse(); }
 %token T_ASSIGN T_IDENTIFIER
 
 /** Distribute tables by default **/
-@autoinh params vars
+@autoinh params vars local_vars_in
 @autosyn immediate
 
 @attributes {int val;}		T_NUM
 @attributes {char *name;} 	T_IDENTIFIER
 
-@attributes {struct symbol *params, *vars;}						stats
-@attributes {struct symbol *params, *vars; struct code *code;}				else
-@attributes {struct symbol *params, *vars, *vars_out; struct code *code;}		stat
-@attributes {struct symbol *params_out, *params_in;	} 				parameters parameters_with_vardefs
+@attributes {struct symbol *params, *vars; struct sym_bucket *local_vars, *local_vars_in;}					stats
+@attributes {struct symbol *params, *vars; struct code *code;}									else
+@attributes {struct symbol *params, *vars, *vars_out; struct sym_bucket *local_vars, *local_vars_in; struct code *code;}	stat
+@attributes {struct symbol *params_out, *params_in; }			 							parameters parameters_with_vardefs
 
 @attributes {struct symbol *params, *vars; struct code *code; int immediate; }				expression_add expression_mult expression_sub term_boolean boolean
 @attributes {struct symbol *params, *vars;} 								call_parameters
@@ -74,6 +74,7 @@ function:
 		@{	@i @parameters.params_in@ = NULL;
 			@i @stats.params@ = gen_para_regs (@parameters.params_out@);
 			@i @stats.vars@ = NULL;
+			@i @stats.local_vars_in@ = NULL;
 
 			@t check_uniqueness (@parameters.params_out@);
 
@@ -116,7 +117,8 @@ type:
 
 else:
 	  T_ELSE stats T_END
-		@{	@asm printf ("\tjmp if_%i_after\n", @else.code@->val);
+		@{	@i @stats.local_vars_in@ = NULL;
+			@asm printf ("\tjmp if_%i_after\n", @else.code@->val);
 			@asm printf ("if_%i_false:\n", @else.code@->val);
 		@}
 	;
@@ -124,19 +126,28 @@ else:
 stats:
 	  stat ';' stats
 		@{	@i @stats.1.vars@ = @stat.vars_out@;
+			@i @stat.local_vars_in@ = @stats.local_vars_in@;
+			@i @stats.1.local_vars_in@ = @stat.local_vars@;
+			@i @stats.local_vars@ = @stats.1.local_vars@;
 		@}
 	|
+		@{	@i @stats.local_vars@ = @stats.local_vars_in@;
+		@}
 	;
 stat:
 	  T_RETURN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
 			@i @stat.code@ = create_code (TT_RETURN, @expression.code@, NULL);
 
 			@asm execute_iburg (@stat.code@);
 		@}
 	| T_IF boolean T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
 			@i @stat.code@ = create_code_if (@boolean.code@);
+
+			@z @revorder (1) free_local_vars (@stats.local_vars@);
 
 			@asm execute_iburg (@stat.code@);
 			@asm printf ("\nif_%i_true:\n", @stat.code@->val);
@@ -144,6 +155,8 @@ stat:
 		@}
 	| T_IF boolean T_THEN stats else
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
+			@i @stats.local_vars_in@ = NULL;
 			@i @stat.code@ = create_code_if (@boolean.code@);
 			@i @else.code@ = @stat.code@;
 
@@ -153,6 +166,8 @@ stat:
 		@}
 	| T_WHILE boolean T_DO stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
+			@i @stats.local_vars_in@ = NULL;
 			@i @stat.code@ = create_code_while (@boolean.code@);
 
 			@asm printf ("\nwhile_%i_before:\n", @stat.code@->val);
@@ -161,6 +176,7 @@ stat:
 		@}
 	| T_VAR vardef T_ASSIGN expression
 		@{	@i @stat.vars_out@ = table_add_symbol (@stat.vars@, @vardef.type@);
+			@i @stat.local_vars@ = table_add_symbol_p (@stat.local_vars_in@, @stat.vars_out@);
 			@i @stat.code@ = create_code_definition (@expression.code@, @stat.vars_out@);
 
 			@t check_depth (@expression.type@, @vardef.type@->depth);
@@ -171,6 +187,7 @@ stat:
 		@}
 	| l_expression T_ASSIGN expression
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
 
 			@i @stat.code@ = create_code (TT_ASSIGN, @l_expression.code@, @expression.code@);
 			@t check_depth (@expression.type@, @l_expression.type@->depth);
@@ -179,6 +196,7 @@ stat:
 		@}
 	| term
 		@{	@i @stat.vars_out@ = @stat.vars@;
+			@i @stat.local_vars@ = @stat.local_vars_in@;
 
 			@i @stat.code@ = @term.code@;
 

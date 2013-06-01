@@ -13,6 +13,17 @@ struct symbol* table_add_symbol (struct symbol *table, struct type *type) {
 	return s;
 }
 
+struct sym_bucket *table_add_symbol_p (struct sym_bucket *table, struct symbol *elem)
+{
+	struct sym_bucket *s = malloc (sizeof(struct sym_bucket));
+
+	s->elem = elem;
+	s->next = table;
+
+	return s;
+
+}
+
 int table_has_symbol (struct symbol *table, const char *name) {
 	struct symbol *s = table;
 
