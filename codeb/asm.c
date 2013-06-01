@@ -157,13 +157,11 @@ char *asm_array_write_imm (char *l, long r)
 
 	if (reg_is_param (l)) {
 		x = newreg ();
-		asm_mov (l, x);
-	}
-
-	asm_add_imm (x, sizeof (long) * r);
-
-	if (reg_is_tmp (l))
+		printf ("\tlea %i(%%%s), %%%s\n", sizeof (long) *r, l, x);
+	} else {
+		asm_add_imm (x, sizeof (long) * r);
 		freereg (l);
+	}
 
 	return x;
 }
