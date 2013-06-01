@@ -4,6 +4,10 @@
 
 #include "reg_management.h"
 
+char    *reg[REG_MAX];
+int      reg_usage[REG_MAX];
+int	 reg_var[REG_MAX];
+
 int get_reg_number (char *r)
 {
 	int i=0;
@@ -81,10 +85,24 @@ char *newreg (void)
 	exit(3);
 }
 
+char *newvarreg (void)
+{
+	char *r = newreg ();
+	set_var_reg (r);
+	printf ("# was a var\n");
+	return r;
+}
+
+void set_var_reg (char *r)
+{
+	reg_var[get_reg_number (r)] = 1;
+}
+
 void freereg (char *r)
 {
 	int nr = get_reg_number(r);
 	reg_usage[nr]--;
+	printf ("#freereg %s\n", r);
 }
 
 int reg_is_tmp (char *r)
@@ -93,7 +111,7 @@ int reg_is_tmp (char *r)
 	for (i=0; i<REG_MAX;i++) {
 		if (reg[i] == NULL) { return 0; }
 		if (strcmp (reg[i], r) == 0) {
-			return 1;
+			return (!reg_var[i]);
 		}
 	}
 	return 0;
