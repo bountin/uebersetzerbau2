@@ -3,19 +3,17 @@
 
 #include "common.h"
 
-char *asm_array_write_2 (char *l, char *r);
-
 void asm_func_head (char *func_name);
 
 void asm_mov (char *src, char *dest);
-char *asm_imov (long val);
+char *asm_imov (long val, char *dest);
 
 char* asm_add (char *p1, char *p2);
 char* asm_sub (char *p1, char *p2);
 char* asm_mult (char *p1, char *p2);
 
-void asm_array_write (char *base, char *offset, char *src);
-
+char *asm_array_write (char *l, char *r);
+char *asm_array_write_imm (char *l, long r);
 char *asm_array_read (char *base, char *offset);
 char *asm_array_read_const (char *base, long offset);
 
@@ -29,5 +27,13 @@ void asm_if (char *r, long label);
 void asm_ret (void);
 
 void asm_loop_eternity (long id);
+
+char *asm_add_imm (char *r, long imm);
+char *asm_mult_imm (char *r, long imm);
+char *asm_cmp_uneq_imm (char *r, long imm);
+
+char *asm_cmp_l_imm (char *r1, char *r2);
+
+char *asm_or_imm (char *r, long imm);
 
 #endif

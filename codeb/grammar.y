@@ -218,7 +218,7 @@ term_boolean:
 		@{	@i @term_boolean.code@ = @boolean.code@;
 		@}
 	| T_NOT term_boolean
-		@{	@i @term_boolean.code@ = create_code (TT_NOT, @term_boolean.1.code@, NULL);
+		@{	@i @term_boolean.code@ = optimize_not (create_code (TT_NOT, @term_boolean.1.code@, NULL));
 		@}
 	| expression '<' expression
 		@{	@i @term_boolean.code@ = create_code (TT_CMP_L, @expression.0.code@, @expression.1.code@);

@@ -5,19 +5,6 @@
 #include "asm.h"
 #include "reg_management.h"
 
-
-
-char *asm_array_write_2 (char *l, char *r)
-{
-	char *x = newreg ();
-
-	asm_mov (r, x);
-	printf ("\timul $%i, %%%s\n", sizeof (long), x);
-	x = asm_add (x, l);
-
-	return x;
-}
-
 void asm_func_head (char *func_name)
 {
 	printf(".globl %1$s\n.type %1$s, @function\n%1$s:\n", func_name);
@@ -36,16 +23,14 @@ void asm_mov (char *src, char *dest)
 			freereg (src);
 	}
 }
-char *asm_imov (long val)
+char *asm_imov (long val, char *dest)
 {
-	char *r = newreg ();
-
 	#ifdef MY_DEBUG
-	printf ("\t# asm_imov (%i)\n", val);
+	printf ("\t# asm_imov (%i, %s)\n", val, dest);
 	#endif
 
-	printf ("\tmovq $%i, %%%s\n", val, r);
-	return r;
+	printf ("\tmovq $%i, %%%s\n", val, dest);
+	return dest;
 }
 
 char *asm_add (char *p1, char *p2)
@@ -144,18 +129,43 @@ char *asm_mult (char *p1, char *p2)
 	return r;
 }
 
-void asm_array_write (char *base, char *offset, char *src)
+char *asm_array_write (char *l, char *r)
 {
+	char *x = newreg ();
+
 	#ifdef MY_DEBUG
-	printf ("\t# asm_array_write (%s, %s, %s)\n", base, offset, src);
+	printf ("\t#asm_array_write (%s, %s)\n", l, r);
 	#endif
 
-	if (reg_is_tmp (base))
-		freereg (base);
-	if (reg_is_tmp (offset))
-		freereg (offset);
+	printf ("\timul $%i, %%%s, %%%s\n", sizeof (long), r, x);
+	x = asm_add (x, l);
 
-	printf ("\tmovq %%%s, (%%%s, %%%s, %i)", src, base, offset, sizeof (long));
+	if (reg_is_tmp (l))
+		freereg (l);
+	if (reg_is_tmp (r))
+		freereg (r);
+
+	return x;
+}
+char *asm_array_write_imm (char *l, long r)
+{
+	char *x = l;
+
+	#ifdef MY_DEBUG
+	printf ("\t#asm_array_write_imm (%s, %i)\n", l, r);
+	#endif
+
+	if (reg_is_param (l)) {
+		x = newreg ();
+		asm_mov (l, x);
+	}
+
+	asm_add_imm (x, sizeof (long) * r);
+
+	if (reg_is_tmp (l))
+		freereg (l);
+
+	return x;
 }
 
 char *asm_array_read (char *base, char *offset)
@@ -323,4 +333,59 @@ void asm_ret (void)
 void asm_loop_eternity (long id)
 {
 	printf ("loop_eternity_%1$i:\njmp loop_eternity_%1$i\n", id);
+}
+
+char *asm_add_imm (char *r, long imm)
+{
+	#ifdef MY_DEBUG
+	printf ("\t#asm_add_imm (%s, %i)\n", r, imm);
+	#endif
+
+	if (reg_is_param (r)) {
+		char *rt = newreg ();
+		asm_mov (r, rt);
+		r = rt;
+	}
+
+	printf ("\taddq $%i, %%%s\n", imm, r);
+	return r;
+}
+char *asm_mult_imm (char *r, long imm)
+{
+	#ifdef MY_DEBUG
+	printf ("\t#asm_mult_imm (%s, %i)\n", r, imm);
+	#endif
+
+	char *rt = r;
+	if (reg_is_param (r))
+		rt = newreg ();
+
+	printf ("\timul $%i, %%%s, %%%s\n", imm, r, rt);
+	return rt;
+}
+char *asm_cmp_uneq_imm (char *r, long imm)
+{
+	#ifdef MY_DEBUG
+	printf ("\t#asm_cmp_uneq_imm (%s, %i)\n", r, imm);
+	#endif
+
+	printf ("\tcmp $%i, %%%s\n", imm, r);
+	printf ("\tsetnz %%%s\n", get_8reg (r));
+	printf ("\tand $1, %%%s\n", r);
+	return r;
+}
+char *asm_or_imm (char *r, long imm)
+{
+	#ifdef MY_DEBUG
+	printf ("\t#asm_or_imm (%s, %i)\n", r, imm);
+	#endif
+
+	if (reg_is_param (r)) {
+		char *rt = newreg ();
+		asm_mov (r, rt);
+		r = rt;
+	}
+
+	printf ("\tior $%i, %%%s\n", imm, r);
+	return r;
 }
