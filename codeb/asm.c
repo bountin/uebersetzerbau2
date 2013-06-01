@@ -19,6 +19,8 @@ void asm_mov (char *src, char *dest)
 
 	if (strcmp (src, dest)) {
 		printf("\tmovq %%%s, %%%s\n", src, dest);
+		if (reg_is_tmp (src))
+			freereg (src);
 	}
 }
 char *asm_imov (long val)
