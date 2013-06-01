@@ -17,6 +17,6 @@ clean:
 	rm -f codeb *tab.? *.output lex.yy.c oxout.?
 
 check: codeb
-	/usr/ftp/pub/ubvl/test13/codeb/test 2>&1 | egrep "(===|Das Ergebnis|Statistics|total|passed|failed)" | egrep "failed|total|Statistics|.Error" -B1
+	/usr/ftp/pub/ubvl/test13/codeb/test 2>&1 | egrep "(===|Das Ergebnis|Statistics|total|passed|failed|Error|Errot)" | egrep "failed|total|Statistics|.Error|Errot" -B1
 test: codeb
 	/usr/ftp/pub/ubvl/test13/codeb/test 
