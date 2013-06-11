@@ -1,0 +1,78 @@
+%{
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+#define CODE
+
+#include "asm.h"
+#include "code_gen.h"
+#include "reg_management.h"
+
+%}
+%start stat
+%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13 TT_DEF=14 TT_ASSIGN=15 TT_ARRAY=16 TT_OR=17
+%%
+
+stat:	TT_RETURN (expr)		# 2 #	asm_mov (LC_REG (bnode), "rax"); asm_ret ();
+stat:	TT_RETURN (iterm)		# 1 #	asm_imov (LC_VAL (bnode), "rax"); asm_ret ();
+
+stat:	TT_IF (boolean)			# 2 #	asm_if (LC_REG (bnode), bnode->val);
+stat:	TT_IF (iboolean)		# 1 #	if (LC_VAL (bnode) == 0)  printf("\tjmp if_%i_false\n", bnode->val);
+
+stat:	TT_WHILE (boolean)		# 2 #	printf ("\tcmp $0, %%%s\n\tjz while_%i_after\n\n", LC_REG (bnode), VAL (bnode));
+stat:	TT_WHILE (iboolean)		# 1 #	if (LC_VAL (bnode) == 0) printf ("\tjmp while_%i_after\n", bnode->val); else asm_loop_eternity (bnode->val);
+
+stat:	TT_DEF (expr)			# 2 #	set_var_reg (bnode->reg); asm_mov (LC_REG (bnode), bnode->reg);
+stat:	TT_DEF (iterm)			# 1 #	set_var_reg (bnode->reg); asm_imov (LC_VAL (bnode), bnode->reg);
+
+stat:	TT_ASSIGN (TT_VARIABLE, expr)	# 2 #	asm_mov (RC_REG (bnode), LC_REG (bnode));
+stat:	TT_ASSIGN (TT_VARIABLE, iterm)	# 1 #	asm_imov (RC_VAL (bnode), LC_REG (bnode));
+
+stat:	TT_ASSIGN (arr_write, expr)	# 2 #	printf ("\tmovq %%%s, (%%%s)\n", RC_REG (bnode), LC_REG (bnode));
+stat:	TT_ASSIGN (arr_write, iterm)	# 1 #	printf ("\tmovq $%i, (%%%s)\n", RC_VAL (bnode), LC_REG (bnode));
+arr_write: TT_ARRAY (term, expr)	# 2 #	bnode->reg = asm_array_write (LC_REG (bnode), RC_REG (bnode));
+arr_write: TT_ARRAY (term, iterm)	# 1 #	bnode->reg = asm_array_write_imm (LC_REG (bnode), RC_VAL (bnode));
+
+expr:	term
+expr:	TT_MULT (term,term)		# 2 #	bnode->reg = asm_mult (LC_REG (bnode), RC_REG (bnode));
+expr:	TT_ADD (term,term)		# 2 #	bnode->reg = asm_add (LC_REG (bnode), RC_REG (bnode));
+expr:	TT_SUB (term,term)		# 2 #	bnode->reg = asm_sub (LC_REG (bnode), RC_REG (bnode));
+
+expr:	TT_MULT (term,iterm)		# 1 #	bnode->reg = asm_mult_imm (LC_REG (bnode), RC_VAL (bnode));
+expr:	TT_MULT (iterm,term)		# 1 #	bnode->reg = asm_mult_imm (RC_REG (bnode), LC_VAL (bnode));
+expr:	TT_ADD (term,iterm)		# 1 #	bnode->reg = asm_add_imm (LC_REG (bnode), RC_VAL (bnode));
+expr:	TT_ADD (iterm,term)		# 1 #	bnode->reg = asm_add_imm (RC_REG (bnode), LC_VAL (bnode));
+expr:	TT_SUB (term,iterm)		# 1 #	bnode->reg = asm_add_imm (LC_REG (bnode), -RC_VAL (bnode));
+
+boolean: term_boolean
+boolean: iboolean			# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());
+
+or_first_operand: term_boolean 				# 0 #	asm_or_between (bnode->val, bnode->reg); // Must be executed between the two or operands
+term_boolean: TT_OR (or_first_operand, term_boolean)	# 2 #	bnode->reg = RC_REG (bnode); asm_or_after (bnode->val, bnode->reg); freereg (LC_REG (bnode));
+
+term_boolean: TT_CMP_UNEQ (expr, expr)			# 2 #	bnode->reg = asm_cmp_uneq (LC_REG (bnode), RC_REG (bnode));
+term_boolean: TT_CMP_L (expr, expr)			# 2 #	bnode->reg = asm_cmp_l (LC_REG (bnode), RC_REG (bnode));
+term_boolean: TT_NOT (term_boolean)			# 1 # 	bnode->reg = asm_not (LC_REG (bnode));
+term_boolean: boolean
+
+term_boolean: TT_CMP_UNEQ (iterm, expr)			# 1 #	bnode->reg = asm_cmp_uneq_imm (RC_REG (bnode), LC_VAL (bnode));
+term_boolean: TT_CMP_UNEQ (expr, iterm)			# 1 #	bnode->reg = asm_cmp_uneq_imm (LC_REG (bnode), RC_VAL (bnode));
+
+term:	expr				# 1 #
+term:	iterm				# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());
+term:	TT_VARIABLE
+term:	TT_ARR_READ (term, expr)	# 2 #	bnode->reg = asm_array_read (LC_REG (bnode), RC_REG (bnode));
+term:	TT_ARR_READ (term, iterm)	# 1 #	bnode->reg = asm_array_read_const (LC_REG (bnode), RC_VAL (bnode));
+
+iterm:	TT_NUM
+iterm:	TT_ADD (iterm, iterm)		# 0 #	bnode->val = LC_VAL (bnode) + RC_VAL (bnode);
+iterm:	TT_SUB (iterm, iterm)		# 0 #	bnode->val = LC_VAL (bnode) - RC_VAL (bnode);
+iterm:	TT_MULT (iterm, iterm)		# 0 #	bnode->val = LC_VAL (bnode) * RC_VAL (bnode);
+
+iboolean: TT_CMP_UNEQ (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) != RC_VAL (bnode);
+iboolean: TT_CMP_L (iterm, iterm)	# 0 #	bnode->val = LC_VAL (bnode) < RC_VAL (bnode);
+iboolean: TT_OR (iboolean, iboolean)	# 0 #	bnode->val = LC_VAL (bnode) || RC_VAL (bnode);
+iboolean: TT_NOT (iboolean)		# 0 #	bnode->val = !LC_VAL (bnode);
