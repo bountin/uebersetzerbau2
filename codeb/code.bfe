@@ -36,7 +36,7 @@ stat:	TT_ASSIGN (arr_write, iterm)	# 1 #	printf ("\tmovq $%i, (%%%s)\n", RC_VAL 
 arr_write: TT_ARRAY (term, expr)	# 2 #	bnode->reg = asm_array_write (LC_REG (bnode), RC_REG (bnode));
 arr_write: TT_ARRAY (term, iterm)	# 1 #	bnode->reg = asm_array_write_imm (LC_REG (bnode), RC_VAL (bnode));
 
-expr:	unary
+expr:	term
 expr:	TT_MULT (term,term)		# 2 #	bnode->reg = asm_mult (LC_REG (bnode), RC_REG (bnode));
 expr:	TT_ADD (term,term)		# 2 #	bnode->reg = asm_add (LC_REG (bnode), RC_REG (bnode));
 expr:	TT_SUB (term,term)		# 2 #	bnode->reg = asm_sub (LC_REG (bnode), RC_REG (bnode));
@@ -60,8 +60,6 @@ term_boolean: TT_CMP_UNEQ (iterm, expr)			# 1 #	bnode->reg = asm_cmp_uneq_imm (R
 term_boolean: TT_CMP_UNEQ (expr, iterm)			# 1 #	bnode->reg = asm_cmp_uneq_imm (LC_REG (bnode), RC_VAL (bnode));
 term_boolean: TT_OR (iboolean, term_boolean)		# 1 #	bnode->reg = asm_or_imm (RC_REG (bnode), LC_VAL (bnode));
 term_boolean: TT_OR (term_boolean, iboolean)		# 1 #	bnode->reg = asm_or_imm (LC_REG (bnode), RC_VAL (bnode));
-
-unary:	term
 
 term:	expr				# 1 #
 term:	iterm				# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());
