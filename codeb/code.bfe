@@ -22,7 +22,7 @@ stat:	TT_RETURN (iterm)		# 1 #	asm_imov (LC_VAL (bnode), "rax"); asm_ret ();
 stat:	TT_IF (boolean)			# 2 #	asm_if (LC_REG (bnode), bnode->val);
 stat:	TT_IF (iboolean)		# 1 #	if (LC_VAL (bnode) == 0)  printf("\tjmp if_%i_false\n", bnode->val);
 
-stat:	TT_WHILE (boolean)		# 2 #	printf ("\tcmp $0, %%%s\n\tjz while_%i_after\n\n", LC_REG (bnode), LC_VAL (bnode));
+stat:	TT_WHILE (boolean)		# 2 #	printf ("\tcmp $0, %%%s\n\tjz while_%i_after\n\n", LC_REG (bnode), VAL (bnode));
 stat:	TT_WHILE (iboolean)		# 1 #	if (LC_VAL (bnode) == 0) printf ("\tjmp while_%i_after\n", bnode->val); else asm_loop_eternity (bnode->val);
 
 stat:	TT_DEF (expr)			# 2 #	set_var_reg (bnode->reg); asm_mov (LC_REG (bnode), bnode->reg);
@@ -50,16 +50,16 @@ expr:	TT_SUB (term,iterm)		# 1 #	bnode->reg = asm_add_imm (LC_REG (bnode), -RC_V
 boolean: term_boolean
 boolean: iboolean			# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());
 
+or_first_operand: term_boolean 				# 0 #	asm_or_between (bnode->val, bnode->reg); // Must be executed between the two or operands
+term_boolean: TT_OR (or_first_operand, term_boolean)	# 2 #	bnode->reg = RC_REG (bnode); asm_or_after (bnode->val, bnode->reg); freereg (LC_REG (bnode));
+
 term_boolean: TT_CMP_UNEQ (expr, expr)			# 2 #	bnode->reg = asm_cmp_uneq (LC_REG (bnode), RC_REG (bnode));
 term_boolean: TT_CMP_L (expr, expr)			# 2 #	bnode->reg = asm_cmp_l (LC_REG (bnode), RC_REG (bnode));
-term_boolean: TT_OR (term_boolean, term_boolean)	# 2 #	bnode->reg = asm_or (LC_REG (bnode), RC_REG (bnode));
 term_boolean: TT_NOT (term_boolean)			# 1 # 	bnode->reg = asm_not (LC_REG (bnode));
 term_boolean: boolean
 
 term_boolean: TT_CMP_UNEQ (iterm, expr)			# 1 #	bnode->reg = asm_cmp_uneq_imm (RC_REG (bnode), LC_VAL (bnode));
 term_boolean: TT_CMP_UNEQ (expr, iterm)			# 1 #	bnode->reg = asm_cmp_uneq_imm (LC_REG (bnode), RC_VAL (bnode));
-term_boolean: TT_OR (iboolean, term_boolean)		# 1 #	bnode->reg = asm_or_imm (RC_REG (bnode), LC_VAL (bnode));
-term_boolean: TT_OR (term_boolean, iboolean)		# 1 #	bnode->reg = asm_or_imm (LC_REG (bnode), RC_VAL (bnode));
 
 term:	expr				# 1 #
 term:	iterm				# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());

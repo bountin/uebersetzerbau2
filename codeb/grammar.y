@@ -206,8 +206,10 @@ stat:
 
 boolean:
 	  term_boolean T_OR boolean
-		@{	@i @boolean.code@ = create_code (TT_OR, @term_boolean.code@, @boolean.1.code@);
+		@{	@i @boolean.code@ = create_code_or (@term_boolean.code@, @boolean.1.code@);
 			@i @boolean.immediate@ = @term_boolean.immediate@ && @boolean.1.immediate@;
+
+			@z @term_boolean.code@->val = @boolean.code@->val;
 		@}
 	| term_boolean
 		@{	@i @boolean.code@ = @term_boolean.code@;

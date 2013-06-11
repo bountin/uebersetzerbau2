@@ -96,9 +96,12 @@ struct code* create_code_while (struct code *condition)
 	return c;
 }
 
-struct code *create_code_nop ()
+struct code* create_code_or (struct code *a, struct code *b)
 {
-	return create_code (TT_NOP, NULL, NULL);
+	struct code *c;
+	c = create_code (TT_OR, a, b);
+	c->val = get_control_label_id ();
+	return c;
 }
 
 struct symbol *gen_para_regs (struct symbol *parameters)

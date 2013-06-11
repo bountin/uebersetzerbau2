@@ -20,7 +20,9 @@ char *asm_array_read_const (char *base, long offset);
 char *asm_not (char *o);
 char *asm_cmp_uneq (char *r1, char *r2);
 char *asm_cmp_l (char *r1, char *r2);
-char *asm_or (char *p1, char *p2);
+
+void asm_or_between (int id, char *reg);
+void asm_or_after (int id, char *reg);
 
 void asm_if (char *r, long label);
 

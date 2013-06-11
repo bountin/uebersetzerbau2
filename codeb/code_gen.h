@@ -69,7 +69,7 @@ struct code* create_code_definition (struct code *expr, struct symbol *s);
 struct code* create_code_if (struct code *condition);
 struct code* create_code_while (struct code *condition);
 
-struct code* create_code_nop (void);
+struct code* create_code_or (struct code *a, struct code *b);
 
 struct symbol* gen_para_regs (struct symbol *parameters);
 
