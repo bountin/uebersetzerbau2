@@ -12,6 +12,8 @@ int get_reg_number (char *r)
 {
 	int i=0;
 	for(;i<REG_MAX;i++) {
+		if (reg[i] == NULL)
+			continue;
 		if (strcmp (reg[i], r) == 0) {
 			return i;
 		}
@@ -74,6 +76,7 @@ char *newreg (void)
 	int i;
 	for (i=0; i < REG_MAX; i++) {
 		if (reg[i] == NULL) { break; }
+		if (reg_var[i]) { continue; }
 		if (reg_usage[i] == 0) {
 			reg_usage[i] = 1;
 			printf ("# newreg: %s\n", reg[i]);
@@ -133,4 +136,14 @@ void free_local_vars (struct sym_bucket *table)
 		clear_var_reg (table->elem->reg);
 		table = table->next;
 	}
+}
+
+int get_reg_usage (char *r)
+{
+	int id;
+	if (reg_is_param (r))
+		return 1;
+
+	id = get_reg_number (r);
+	return reg_usage[id];
 }

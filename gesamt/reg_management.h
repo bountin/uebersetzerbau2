@@ -19,4 +19,6 @@ int reg_is_param (char *r);
 
 void free_local_vars (struct sym_bucket *table);
 
+int get_reg_usage (char *r);
+
 #endif
