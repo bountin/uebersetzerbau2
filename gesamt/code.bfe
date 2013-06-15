@@ -13,7 +13,7 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13 TT_DEF=14 TT_ASSIGN=15 TT_ARRAY=16 TT_OR=17
+%term TT_RETURN=1 TT_NOP=2 TT_NUM=3 TT_ADD=4 TT_SUB=5 TT_MULT=6 TT_VARIABLE=7 TT_ARR_READ=8 TT_IF=9 TT_WHILE=10 TT_CMP_UNEQ=11 TT_CMP_L=12 TT_NOT=13 TT_DEF=14 TT_ASSIGN=15 TT_ARRAY=16 TT_OR=17 TT_FUNC=18 TT_FUNCP=19 TT_FUNC_PARAM=20
 %%
 
 stat:	TT_RETURN (expr)		# 2 #	asm_mov (LC_REG (bnode), "rax"); asm_ret ();
@@ -66,6 +66,12 @@ term:	iterm				# 1 #	bnode->reg = asm_imov (bnode->val, newreg ());
 term:	TT_VARIABLE
 term:	TT_ARR_READ (term, expr)	# 2 #	bnode->reg = asm_array_read (LC_REG (bnode), RC_REG (bnode));
 term:	TT_ARR_READ (term, iterm)	# 1 #	bnode->reg = asm_array_read_const (LC_REG (bnode), RC_VAL (bnode));
+term:	func
+
+func:	TT_FUNC				# 1 #	bnode->reg = asm_func_call (bnode);
+func:	TT_FUNCP (params)		# 1 #	bnode->reg = asm_func_call (bnode);
+params: TT_FUNC_PARAM (expr, params)
+params: expr
 
 iterm:	TT_NUM
 iterm:	TT_ADD (iterm, iterm)		# 0 #	bnode->val = LC_VAL (bnode) + RC_VAL (bnode);

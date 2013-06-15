@@ -43,7 +43,7 @@ main () { yyparse(); }
 @attributes {struct symbol *params_out, *params_in; }			 							parameters parameters_with_vardefs
 
 @attributes {struct symbol *params, *vars; struct code *code; int immediate; }				expression_add expression_mult expression_sub term_boolean boolean
-@attributes {struct symbol *params, *vars;} 								call_parameters
+@attributes {struct symbol *params, *vars; struct code *code; }						call_parameters
 @attributes {struct symbol *params, *vars; struct type *type; struct code *code; int immediate; }	term expression
 @attributes {struct symbol *params, *vars; struct type *type; struct code *code; }			l_expression
 
@@ -335,16 +335,20 @@ term:
 		@}
 	| T_IDENTIFIER '(' ')' ':' type
 		@{	@i @term.type@ = create_type ("", @type.depth@);
-			@i @term.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("func call without params");
+			@i @term.code@ = create_code_func (@T_IDENTIFIER.name@, NULL);
 			@i @term.immediate@ = 0;
 		@}
 	| T_IDENTIFIER '(' call_parameters ')' ':' type
 		@{	@i @term.type@ = create_type ("", @type.depth@);
-			@i @term.code@ = create_code (TT_NOP, NULL, NULL); // not_supported ("func call with params");
+			@i @term.code@ = create_code_func (@T_IDENTIFIER.name@, @call_parameters.code@);
 			@i @term.immediate@ = 0;
 		@}
 	;
 call_parameters:
 	  expression ',' call_parameters
+		@{	@i @call_parameters.code@ = create_code(TT_FUNC_PARAM, @expression.code@, @call_parameters.1.code@);
+		@}
 	| expression
+		@{	@i @call_parameters.code@ = @expression.code@;
+		@}
 	;

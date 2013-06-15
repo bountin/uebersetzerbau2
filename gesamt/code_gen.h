@@ -21,7 +21,10 @@ enum {
 	TT_DEF,
 	TT_ASSIGN,
 	TT_ARRAY,
-	TT_OR
+	TT_OR,
+	TT_FUNC,
+	TT_FUNCP,
+	TT_FUNC_PARAM
 };
 
 #ifndef CODE
@@ -70,6 +73,8 @@ struct code* create_code_if (struct code *condition);
 struct code* create_code_while (struct code *condition);
 
 struct code* create_code_or (struct code *a, struct code *b);
+
+struct code* create_code_func (char *name, struct code *parameter);
 
 struct symbol* gen_para_regs (struct symbol *parameters);
 

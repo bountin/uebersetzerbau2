@@ -2,6 +2,7 @@
 #define ASM_H
 
 #include "common.h"
+#include "code_gen.h"
 
 void asm_func_head (char *func_name);
 
@@ -37,5 +38,7 @@ char *asm_cmp_uneq_imm (char *r, long imm);
 char *asm_cmp_l_imm (char *r1, char *r2);
 
 char *asm_or_imm (char *r, long imm);
+
+char *asm_func_call (struct code *code);
 
 #endif

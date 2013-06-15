@@ -104,6 +104,18 @@ struct code* create_code_or (struct code *a, struct code *b)
 	return c;
 }
 
+struct code* create_code_func (char *name, struct code *parameters)
+{
+	struct code *c;
+	if (parameters != NULL)
+		c = create_code (TT_FUNCP, NULL, NULL);
+	else
+		c = create_code (TT_FUNC, NULL, NULL);
+	c->name = name;
+	LC (c) = parameters;
+	return c;
+}
+
 struct symbol *gen_para_regs (struct symbol *parameters)
 {
 	char *registers[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};

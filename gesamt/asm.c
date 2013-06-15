@@ -381,3 +381,59 @@ char *asm_or_imm (char *r, long imm)
 	printf ("\tior $%i, %%%s\n", imm, r);
 	return r;
 }
+
+char *asm_func_call (struct code *code)
+{
+	char *r = newreg ();
+	char *caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
+	char * argument_register[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+	int i;
+	struct code *c;
+
+	// Save caller-saved registers
+	#ifdef MY_DEBUG
+	printf ("# Saving caller saved registers\n");
+	#endif
+	for (i=0; i<9; i++) {
+		if (strcmp (caller_saved[i], r) == 0)
+			continue;
+		if (get_reg_usage (caller_saved[i]) == 0)
+			continue;
+		printf ("\tpushq %%%s\n", caller_saved[i]);
+	}
+
+	// Prepare parameters
+	i = 0;
+	c = LC (code);
+	#ifdef MY_DEBUG
+	printf ("# Cp'ing params to right registers\n");
+	#endif
+	while (c != NULL) {
+		if (c->op == TT_FUNC_PARAM) {
+			printf ("\tmovq %%%s, %%%s\n", LC_REG (c), argument_register[i]);
+		} else {
+			printf ("\tmovq %%%s, %%%s\n", REG (c), argument_register[i]);
+			break;
+		}
+		c = RC (c);
+		i++;
+	}
+
+	// Make 'the call'
+	printf ("\tcall %s\n", code->name);
+	printf ("\tmovq %%%s, %%%s\n", "rax", r);
+
+	// Load caller saved registers
+	#ifdef MY_DEBUG
+	printf ("# Loading caller saved registers\n");
+	#endif
+	for (i=8; i>=0; i--) {
+		if (strcmp (caller_saved[i], r) == 0)
+			continue;
+		if (get_reg_usage (caller_saved[i]) == 0)
+			continue;
+		printf("\tpop %%%s\n", caller_saved[i]);
+	}
+
+	return r;
+}
