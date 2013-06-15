@@ -432,7 +432,7 @@ char *asm_func_call (struct code *code)
 			continue;
 		if (get_reg_usage (caller_saved[i]) == 0)
 			continue;
-		printf("\tpop %%%s\n", caller_saved[i]);
+		printf("\tpopq %%%s\n", caller_saved[i]);
 	}
 
 	return r;

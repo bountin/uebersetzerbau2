@@ -36,6 +36,8 @@ stat:	TT_ASSIGN (arr_write, iterm)	# 1 #	printf ("\tmovq $%i, (%%%s)\n", RC_VAL 
 arr_write: TT_ARRAY (term, expr)	# 2 #	bnode->reg = asm_array_write (LC_REG (bnode), RC_REG (bnode));
 arr_write: TT_ARRAY (term, iterm)	# 1 #	bnode->reg = asm_array_write_imm (LC_REG (bnode), RC_VAL (bnode));
 
+stat: term
+
 expr:	term
 expr:	TT_MULT (term,term)		# 2 #	bnode->reg = asm_mult (LC_REG (bnode), RC_REG (bnode));
 expr:	TT_ADD (term,term)		# 2 #	bnode->reg = asm_add (LC_REG (bnode), RC_REG (bnode));
