@@ -1,5 +1,5 @@
-codeb: y.tab.c lex.yy.c table.c table.h checks.c checks.h code.c
-	gcc *.c -lfl -o codeb
+gesamt: y.tab.c lex.yy.c table.c table.h checks.c checks.h code.c
+	gcc *.c -lfl -o gesamt
 
 oxout.y oxout.l: grammar.y parser.flex
 	ox grammar.y parser.flex
@@ -14,9 +14,9 @@ code.c: code.bfe
 	bfe < code.bfe | iburg > code.c
 
 clean:
-	rm -f codeb *tab.? *.output lex.yy.c oxout.?
+	rm -f gesamt *tab.? *.output lex.yy.c oxout.? code.c
 
-check: codeb
-	/usr/ftp/pub/ubvl/test13/codeb/test 2>&1 | egrep "(===|Das Ergebnis|Statistics|total|passed|failed|Error|Errot)" | egrep "failed|total|Statistics|.Error|Errot" -B1
-test: codeb
-	/usr/ftp/pub/ubvl/test13/codeb/test 
+check:
+	/usr/ftp/pub/ubvl/test13/gesamt/test 2>&1 | egrep "(===|Das Ergebnis|Statistics|total|passed|failed|Error|Errot)" | egrep "failed|total|Statistics|.Error|Errot" -B1
+test:
+	/usr/ftp/pub/ubvl/test13/gesamt/test 
