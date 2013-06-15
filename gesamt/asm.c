@@ -358,6 +358,10 @@ char *asm_cmp_uneq_imm (char *r, long imm)
 	#endif
 
 	printf ("\tcmp $%i, %%%s\n", imm, r);
+
+	if (reg_is_param (r))
+		r = newreg ();
+
 	printf ("\tsetnz %%%s\n", get_8reg (r));
 	printf ("\tand $1, %%%s\n", r);
 	return r;
