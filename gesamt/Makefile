@@ -14,7 +14,7 @@ code.c: code.bfe
 	bfe < code.bfe | iburg > code.c
 
 clean:
-	rm -f gesamt *tab.? *.output lex.yy.c oxout.? code.c
+	rm -f gesamt *tab.? *.output lex.yy.c oxout.? code.c testgesamt*
 
 check:
 	/usr/ftp/pub/ubvl/test13/gesamt/test 2>&1 | egrep "(===|Das Ergebnis|Statistics|total|passed|failed|Error|Errot)" | egrep "failed|total|Statistics|.Error|Errot" -B1
