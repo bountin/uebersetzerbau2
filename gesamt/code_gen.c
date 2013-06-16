@@ -141,6 +141,6 @@ struct symbol *gen_para_regs (struct symbol *parameters)
 
 void code_print (struct code *c)
 {
-	printf ("# - CODE INFO\n");
+	printf ("# - CODE INFO (%p)\n", c);
 	printf ("#  op: %i\n#  val: %li\n#  name: %s\n#  reg: %s\n#  LC: %p\n#  RC: %p\n", c->op, c->val, c->name, c->reg, LEFT_CHILD(c), RIGHT_CHILD(c));
 }

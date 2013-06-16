@@ -387,8 +387,14 @@ char *asm_func_call (struct code *code)
 	char *r = newreg ();
 	char *caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
 	char * argument_register[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
-	int i;
+	int i, j;
 	struct code *c;
+	char *reg;
+
+	// Prepare parameter offsets on the stack
+	int parameter_offsets[REG_MAX];
+	for (j=0; j<REG_MAX; j++)
+		parameter_offsets[j] = -1;
 
 	// Save caller-saved registers
 	#ifdef MY_DEBUG
@@ -400,6 +406,30 @@ char *asm_func_call (struct code *code)
 		if (get_reg_usage (caller_saved[i]) == 0)
 			continue;
 		printf ("\tpushq %%%s\n", caller_saved[i]);
+
+		// Increase all the (existing) offsets!
+		for (j=0; j < REG_MAX ;j++)
+			if (parameter_offsets[j] >= 0)
+				parameter_offsets[j] += 8;
+
+		// Check if and which parameter offsets to increase
+		c = LC (code);
+		j = 0;
+		while (c != NULL) {
+			if (c->op == TT_FUNC_PARAM)
+				reg = LC_REG (c);
+			else
+				reg = REG (c);
+
+			if (strcmp (reg, caller_saved[i]) == 0) {
+				parameter_offsets[j] = 0;
+				break;
+			}
+			if (c->op != TT_FUNC_PARAM)
+				break;
+			c = RC (c);
+			j++;
+		}
 	}
 
 	// Prepare parameters
@@ -409,12 +439,9 @@ char *asm_func_call (struct code *code)
 	printf ("# Cp'ing params to right registers\n");
 	#endif
 	while (c != NULL) {
-		if (c->op == TT_FUNC_PARAM) {
-			printf ("\tmovq %%%s, %%%s\n", LC_REG (c), argument_register[i]);
-		} else {
-			printf ("\tmovq %%%s, %%%s\n", REG (c), argument_register[i]);
+		printf ("\tmovq %i(%rsp), %%%s\n", parameter_offsets[i], argument_register[i]);
+		if (c->op != TT_FUNC_PARAM)
 			break;
-		}
 		c = RC (c);
 		i++;
 	}
