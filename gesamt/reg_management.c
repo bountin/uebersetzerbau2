@@ -4,13 +4,20 @@
 
 #include "reg_management.h"
 
-char    *reg[REG_MAX];
-int      reg_usage[REG_MAX];
-int	 reg_var[REG_MAX];
+struct reginfo *reg_switch (struct reginfo *info)
+{
+	if (info == NULL) {
+		info = malloc (sizeof (struct reginfo));
+	}
+
+	cur_reg = info;
+	return info;
+}
 
 int get_reg_number (char *r)
 {
 	int i=0;
+	char **reg = cur_reg->reg;
 	for(;i<REG_MAX;i++) {
 		if (reg[i] == NULL)
 			continue;
@@ -51,6 +58,8 @@ void reg_init (struct symbol* paras)
 	char *arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 	char *other_regs[] = {"rax", "r11"};
 	int i=0, j=0;
+	char **reg = cur_reg->reg;
+	int *reg_usage = cur_reg->reg_usage;
 
 	while (paras != NULL) {
 		i++;
@@ -74,6 +83,9 @@ void reg_init (struct symbol* paras)
 char *newreg (void)
 {
 	int i;
+	char **reg = cur_reg->reg;
+	int *reg_var = cur_reg->reg_var;
+	int *reg_usage = cur_reg->reg_usage;
 	for (i=0; i < REG_MAX; i++) {
 		if (reg[i] == NULL) { break; }
 		if (reg_var[i]) { continue; }
@@ -98,27 +110,28 @@ char *newvarreg (void)
 
 void set_var_reg (char *r)
 {
-	reg_var[get_reg_number (r)] = 1;
+	cur_reg->reg_var[get_reg_number (r)] = 1;
 }
 void clear_var_reg (char *r)
 {
-	reg_var[get_reg_number (r)] = 0;
+	cur_reg->reg_var[get_reg_number (r)] = 0;
 }
 
 void freereg (char *r)
 {
 	int nr = get_reg_number(r);
-	reg_usage[nr]--;
+	cur_reg->reg_usage[nr]--;
 	printf ("#freereg %s\n", r);
 }
 
 int reg_is_tmp (char *r)
 {
 	int i;
+	char **reg = cur_reg->reg;
 	for (i=0; i<REG_MAX;i++) {
 		if (reg[i] == NULL) { return 0; }
 		if (strcmp (reg[i], r) == 0) {
-			return (!reg_var[i]);
+			return (!cur_reg->reg_var[i]);
 		}
 	}
 	return 0;
@@ -145,5 +158,5 @@ int get_reg_usage (char *r)
 		return 1;
 
 	id = get_reg_number (r);
-	return reg_usage[id];
+	return cur_reg->reg_usage[id];
 }

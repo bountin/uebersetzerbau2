@@ -37,6 +37,7 @@ main () { yyparse(); }
 @attributes {int val;}		T_NUM
 @attributes {char *name;} 	T_IDENTIFIER
 
+@attributes {struct reginfo *reginfo; } function
 @attributes {struct symbol *params, *vars; struct sym_bucket *local_vars, *local_vars_in;}					stats
 @attributes {struct symbol *params, *vars; struct code *code;}									else
 @attributes {struct symbol *params, *vars, *vars_out; struct sym_bucket *local_vars, *local_vars_in; struct code *code;}	stat
@@ -65,7 +66,7 @@ program:
 	;
 
 functions:
-	  function program
+	  function functions
 	|
 	;
 
@@ -75,8 +76,12 @@ function:
 			@i @stats.params@ = gen_para_regs (@parameters.params_out@);
 			@i @stats.vars@ = NULL;
 			@i @stats.local_vars_in@ = NULL;
+			@i @function.reginfo@ = reg_switch (NULL);
 
 			@t check_uniqueness (@parameters.params_out@);
+
+			@z reg_switch (@function.reginfo@);
+			@asm reg_switch (@function.reginfo@);
 
 			@z reg_init (@stats.params@);
 			@asm asm_func_head(@T_IDENTIFIER.name@);
