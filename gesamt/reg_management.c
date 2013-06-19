@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "reg_management.h"
 
@@ -153,10 +154,13 @@ void free_local_vars (struct sym_bucket *table)
 
 int get_reg_usage (char *r)
 {
-	int id;
+	int id, usage;
 	if (reg_is_param (r))
 		return 1;
 
 	id = get_reg_number (r);
-	return cur_reg->reg_usage[id];
+	usage = cur_reg->reg_usage[id];
+	assert (usage >= 0);
+
+	return usage;
 }

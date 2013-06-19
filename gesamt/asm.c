@@ -141,8 +141,7 @@ char *asm_array_write (char *l, char *r)
 	printf ("\timul $%i, %%%s, %%%s\n", sizeof (long), r, x);
 	x = asm_add (x, l);
 
-	if (reg_is_tmp (l))
-		freereg (l);
+	// l is already free'ed in asm_add
 	if (reg_is_tmp (r))
 		freereg (r);
 
@@ -175,13 +174,14 @@ char *asm_array_read (char *base, char *offset)
 	printf ("\t#asm_array_read (%s, %s)\n", base, offset);
 	#endif
 
-	if (reg_is_tmp (base))
+	if (reg_is_tmp (base)) {
 		r = base;
-	else
 		if (reg_is_tmp (offset))
-			r = offset;
-		else
-			r = newreg ();
+			freereg (offset);
+	} else if (reg_is_tmp (offset))
+		r = offset;
+	else
+		r = newreg ();
 
 	printf ("\tmovq (%%%s, %%%s, %i), %%%s\n", base, offset, sizeof (long), r);
 
@@ -196,7 +196,7 @@ char *asm_array_read_const (char *base, long offset)
 	printf ("\t#asm_array_read_const (%s, %i)\n", base, offset);
 	#endif
 
-	if(reg_is_tmp (base))
+	if (reg_is_tmp (base))
 		r = base;
 	else
 		r = newreg ();
@@ -315,6 +315,9 @@ void asm_if (char *r, long label)
 
 void asm_ret (void)
 {
+	if (get_reg_usage ("rax") > 0)
+		freereg ("rax");
+
 	printf ("\tret\n");
 }
 
